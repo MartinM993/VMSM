@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DisableImplicitComponentsAnalyzers>true</DisableImplicitComponentsAnalyzers>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="3.2.0-preview3.20168.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VMSM.Client\VMSM.Client.csproj" />
+    <ProjectReference Include="..\VMSM.Contracts\VMSM.Contracts.csproj" />
+    <ProjectReference Include="..\VMSM.Data\VMSM.Data.csproj" />
+    <ProjectReference Include="..\VMSM.Services\VMSM.Services.csproj" />
+  </ItemGroup>
+
+
+</Project>
