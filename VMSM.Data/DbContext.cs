@@ -25,6 +25,9 @@ namespace VMSM.Data
             builder.ApplyConfiguration(new VehicleMap());
             builder.ApplyConfiguration(new VendingMachineMap());
             builder.ApplyConfiguration(new VendingMachineScheduleMap());
+            builder.ApplyConfiguration(new IncomeMap());
+            builder.ApplyConfiguration(new VendingMachineProductPriceMap());
+            builder.ApplyConfiguration(new VendingMachineProductMap());
 
             base.OnModelCreating(builder);
         }
@@ -41,5 +44,8 @@ namespace VMSM.Data
         public virtual DbSet<Vehicle> Vehicle { get; set; }
         public virtual DbSet<VendingMachine> VendingMachine { get; set; }
         public virtual DbSet<VendingMachineSchedule> VendingMachineSchedule { get; set; }
+        public virtual DbSet<Income> Income { get; set; }
+        public virtual DbSet<VendingMachineProductPrice> VendingMachineProductPrice { get; set; }
+        public virtual DbSet<VendingMachineProduct> VendingMachineProduct { get; set; }
     }
 }

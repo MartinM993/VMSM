@@ -4,11 +4,11 @@ using VMSM.Contracts.Entities;
 
 namespace VMSM.Data.DbMaps
 {
-    public class AddressMap : IEntityTypeConfiguration<Address>
+    public class IncomeMap : IEntityTypeConfiguration<Income>
     {
-        public void Configure(EntityTypeBuilder<Address> builder)
+        public void Configure(EntityTypeBuilder<Income> builder)
         {
-            builder.ToTable("Addresses").HasKey(x => x.Id);
+            builder.ToTable("Incomes").HasKey(x => x.Id);
         }
     }
 }

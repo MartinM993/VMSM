@@ -20,7 +20,7 @@ namespace VMSM.Contracts.Entities
         public virtual bool IsActive { get; set; }
         public virtual int NumberOfDefects { get; set; }
         public virtual int CostOfDefects { get; set; }
+        public int MachineCost { get; set; }
         public virtual ICollection<Schedule> Schedule { get; set; }
-
     }
 }

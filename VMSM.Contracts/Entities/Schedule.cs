@@ -10,7 +10,6 @@ namespace VMSM.Contracts.Entities
             VendingMachines = new List<VendingMachine>();
         }
 
-        public virtual User AssignedBy { get; set; }
         public virtual User FieldWorker { get; set; }
         public virtual Day Day { get; set; }
         public virtual ICollection<VendingMachine> VendingMachines { get; set; }
