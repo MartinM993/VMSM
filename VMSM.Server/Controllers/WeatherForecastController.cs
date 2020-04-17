@@ -1,16 +1,14 @@
-﻿using VMSM.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VMSM.Contracts.Entities;
+using VMSM.Contracts;
 
 namespace VMSM.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -26,6 +24,7 @@ namespace VMSM.Server.Controllers
         }
 
         [HttpGet]
+        [Route(Routes.Test.Root)]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
@@ -36,9 +35,6 @@ namespace VMSM.Server.Controllers
                 Profit = 10,
                 Rebate = 25
             };
-
-
-            var tmp = product.SellingPrice;
 
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {

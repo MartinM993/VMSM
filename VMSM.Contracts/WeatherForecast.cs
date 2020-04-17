@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace VMSM.Shared
+namespace VMSM.Contracts
 {
     public class WeatherForecast
     {

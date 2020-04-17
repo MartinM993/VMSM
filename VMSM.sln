@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Server", "VMSM.Server\VMSM.Server.csproj", "{536F10D4-63E8-44B0-9528-4EC6D96AAF0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Api", "VMSM.Server\VMSM.Api.csproj", "{536F10D4-63E8-44B0-9528-4EC6D96AAF0F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Client", "VMSM.Client\VMSM.Client.csproj", "{6F45EAD5-F25E-4F77-98F0-838EC779079C}"
 EndProject

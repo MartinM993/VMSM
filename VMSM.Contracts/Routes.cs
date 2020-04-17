@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace VMSM.Contracts
+﻿namespace VMSM.Contracts
 {
     public static class Routes
     {
@@ -8,7 +6,7 @@ namespace VMSM.Contracts
 
         public static class Test
         {
-            public const string Root = ApiPrefix + "/data";
+            public const string Root = ApiPrefix + "/test";
         }
     }
 }
