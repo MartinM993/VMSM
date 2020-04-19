@@ -1,9 +1,15 @@
-﻿namespace VMSM.Contracts.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VMSM.Contracts.Entities
 {
     public class Address : Entity
     {
+        [Required]
         public virtual string Town { get; set; }
-        public virtual string Street { get; set; }
-        public virtual int Number { get; set; }
+        [Required]
+        public int ZipCode { get; set; }
+        [Required]
+        public virtual string Line1 { get; set; }
+        public virtual string Line2 { get; set; }
     }
 }

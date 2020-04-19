@@ -8,7 +8,10 @@ namespace VMSM.Data.DbMaps
     {
         public void Configure(EntityTypeBuilder<StorageImport> builder)
         {
-            builder.ToTable("StorageImports").HasKey(x => x.Id);
+            builder.ToTable("StorageImports");
+            
+            builder.HasKey(x => x.Id);
+            builder.HasOne(x => x.Product);
         }
     }
 }

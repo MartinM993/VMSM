@@ -9,6 +9,9 @@ namespace VMSM.Data.DbMaps
         public void Configure(EntityTypeBuilder<UserRole> builder)
         {
             builder.ToTable("UserRoles");
+
+            builder.HasNoKey();
+            builder.Property(x => x.Type).HasConversion<string>();
         }
     }
 }

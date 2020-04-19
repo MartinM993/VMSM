@@ -8,7 +8,12 @@ namespace VMSM.Data.DbMaps
     {
         public void Configure(EntityTypeBuilder<VendingMachine> builder)
         {
-            builder.ToTable("VendingMachines").HasKey(x => x.Id);
+            builder.ToTable("VendingMachines");
+            
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Category).HasConversion<string>();
+            builder.HasMany(x => x.Schedules);
+            builder.HasOne(x => x.Location);
         }
     }
 }

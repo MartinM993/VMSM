@@ -8,7 +8,11 @@ namespace VMSM.Data.DbMaps
     {
         public void Configure(EntityTypeBuilder<Schedule> builder)
         {
-            builder.ToTable("Schedules").HasKey(x => x.Id);
+            builder.ToTable("Schedules");
+            
+            builder.HasKey(x => x.Id);
+            builder.HasMany(x => x.VendingMachines);
+            builder.HasIndex(x => new { x.FieldWorkerId, x.Day }).IsUnique();
         }
     }
 }

@@ -5,9 +5,9 @@ using VMSM.Data.DbMaps;
 
 namespace VMSM.Data
 {
-    public class DbContext : IdentityDbContext
+    public class VMSMDbContext : IdentityDbContext
     {
-        public DbContext(DbContextOptions<DbContext> options) : base(options)
+        public VMSMDbContext(DbContextOptions<VMSMDbContext> options) : base(options)
         {
         }
 

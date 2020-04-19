@@ -8,7 +8,11 @@ namespace VMSM.Data.DbMaps
     {
         public void Configure(EntityTypeBuilder<Defect> builder)
         {
-            builder.ToTable("Defects").HasKey(x => x.Id);
+            builder.ToTable("Defects");
+
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Cost).HasColumnType("decimal(18,4)");
+            builder.HasOne(x => x.VendingMachine);
         }
     }
 }

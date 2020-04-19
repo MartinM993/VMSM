@@ -8,7 +8,12 @@ namespace VMSM.Data.DbMaps
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("Users").HasKey(x => x.Id);
+            builder.ToTable("Users");
+
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Role).HasConversion<string>();
+            builder.HasOne(x => x.Address);
+            builder.HasOne(x => x.Vehicle);
         }
     }
 }

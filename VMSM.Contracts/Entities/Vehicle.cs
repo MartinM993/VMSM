@@ -1,10 +1,15 @@
-﻿namespace VMSM.Contracts.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VMSM.Contracts.Entities
 {
     public class Vehicle : Entity
     {
+        [Required]
+        public string Code { get; set; }
         public virtual string Brand { get; set; }
         public virtual string Model { get; set; }
+        [Required]
         public virtual string RegistrationPlate { get; set; }
-        public virtual User AssignTo { get; set; }
+        public int UserId { get; set; }
     }
 }

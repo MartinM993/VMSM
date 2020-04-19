@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts;
 
-namespace VMSM.Server.Controllers
+namespace VMSM.Api.Controllers
 {
     [ApiController]
     public class WeatherForecastController : ControllerBase
