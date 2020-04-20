@@ -8,7 +8,7 @@ namespace VMSM.Contracts.Entities
     {
         public VendingMachine()
         {
-            Schedules = new List<VendingMachineSchedule>();
+            VendingMachineSchedules = new List<VendingMachineSchedule>();
         }
 
         public virtual string Name { get; set; }
@@ -17,13 +17,14 @@ namespace VMSM.Contracts.Entities
         [Required]
         public virtual string Code { get; set; }
         public virtual VendingMachineCategory Category { get; set; }
+        public virtual int AddressId { get; set; }
         [Required]
-        public virtual Address Location { get; set; }
+        public virtual Address Address { get; set; }
         public virtual int Income { get; set; }
         public virtual bool IsActive { get; set; }
         public virtual int NumberOfDefects { get; set; }
         public virtual int CostOfDefects { get; set; }
         public int MachineCost { get; set; }
-        public virtual ICollection<VendingMachineSchedule> Schedules { get; set; }
+        public virtual ICollection<VendingMachineSchedule> VendingMachineSchedules { get; set; }
     }
 }

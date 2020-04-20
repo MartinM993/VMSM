@@ -12,8 +12,8 @@ namespace VMSM.Data.DbMaps
             
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Category).HasConversion<string>();
-            builder.HasMany(x => x.Schedules);
-            builder.HasOne(x => x.Location);
+            builder.HasMany(x => x.VendingMachineSchedules);
+            builder.HasOne(x => x.Address);
         }
     }
 }

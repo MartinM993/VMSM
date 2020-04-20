@@ -121,8 +121,7 @@ namespace VMSM.Data.Migrations
                     Code = table.Column<string>(nullable: false),
                     Brand = table.Column<string>(nullable: true),
                     Model = table.Column<string>(nullable: true),
-                    RegistrationPlate = table.Column<string>(nullable: false),
-                    UserId = table.Column<int>(nullable: false)
+                    RegistrationPlate = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,7 +143,7 @@ namespace VMSM.Data.Migrations
                     ProductionYear = table.Column<int>(nullable: false),
                     Code = table.Column<string>(nullable: false),
                     Category = table.Column<string>(nullable: false),
-                    LocationId = table.Column<int>(nullable: false),
+                    AddressId = table.Column<int>(nullable: false),
                     Income = table.Column<int>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     NumberOfDefects = table.Column<int>(nullable: false),
@@ -155,8 +154,8 @@ namespace VMSM.Data.Migrations
                 {
                     table.PrimaryKey("PK_VendingMachines", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VendingMachines_Addresses_LocationId",
-                        column: x => x.LocationId,
+                        name: "FK_VendingMachines_Addresses_AddressId",
+                        column: x => x.AddressId,
                         principalTable: "Addresses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -310,8 +309,7 @@ namespace VMSM.Data.Migrations
                     PhoneNumber = table.Column<string>(nullable: false),
                     Role = table.Column<string>(nullable: false),
                     AddressId = table.Column<int>(nullable: false),
-                    VehicleId = table.Column<int>(nullable: false),
-                    VehicleId1 = table.Column<int>(nullable: true)
+                    VehicleId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -323,11 +321,11 @@ namespace VMSM.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Users_Vehicles_VehicleId1",
-                        column: x => x.VehicleId1,
+                        name: "FK_Users_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -542,7 +540,8 @@ namespace VMSM.Data.Migrations
                         name: "FK_VendingMachineSchedules_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_VendingMachineSchedules_VendingMachines_VendingMachineId",
                         column: x => x.VendingMachineId,
@@ -637,9 +636,9 @@ namespace VMSM.Data.Migrations
                 column: "AddressId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_VehicleId1",
+                name: "IX_Users_VehicleId",
                 table: "Users",
-                column: "VehicleId1");
+                column: "VehicleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendingMachineProductPrices_ProductId",
@@ -664,9 +663,9 @@ namespace VMSM.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_VendingMachines_LocationId",
+                name: "IX_VendingMachines_AddressId",
                 table: "VendingMachines",
-                column: "LocationId");
+                column: "AddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendingMachineSchedules_ScheduleId",

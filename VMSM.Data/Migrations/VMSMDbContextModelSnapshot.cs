@@ -577,14 +577,11 @@ namespace VMSM.Data.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VehicleId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
 
-                    b.HasIndex("VehicleId1");
+                    b.HasIndex("VehicleId");
 
                     b.ToTable("Users");
                 });
@@ -643,9 +640,6 @@ namespace VMSM.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Vehicles");
@@ -657,6 +651,9 @@ namespace VMSM.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AddressId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -684,9 +681,6 @@ namespace VMSM.Data.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
                     b.Property<int>("MachineCost")
                         .HasColumnType("int");
 
@@ -707,7 +701,7 @@ namespace VMSM.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("AddressId");
 
                     b.ToTable("VendingMachines");
                 });
@@ -930,14 +924,16 @@ namespace VMSM.Data.Migrations
 
                     b.HasOne("VMSM.Contracts.Entities.Vehicle", "Vehicle")
                         .WithMany()
-                        .HasForeignKey("VehicleId1");
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("VMSM.Contracts.Entities.VendingMachine", b =>
                 {
-                    b.HasOne("VMSM.Contracts.Entities.Address", "Location")
+                    b.HasOne("VMSM.Contracts.Entities.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -975,13 +971,13 @@ namespace VMSM.Data.Migrations
             modelBuilder.Entity("VMSM.Contracts.Entities.VendingMachineSchedule", b =>
                 {
                     b.HasOne("VMSM.Contracts.Entities.Schedule", "Schedule")
-                        .WithMany("VendingMachines")
+                        .WithMany("VendingMachineSchedules")
                         .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VMSM.Contracts.Entities.VendingMachine", "VendingMachine")
-                        .WithMany("Schedules")
+                        .WithMany("VendingMachineSchedules")
                         .HasForeignKey("VendingMachineId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();

@@ -10,6 +10,5 @@ namespace VMSM.Contracts.Entities
         public virtual string Model { get; set; }
         [Required]
         public virtual string RegistrationPlate { get; set; }
-        public int UserId { get; set; }
     }
 }

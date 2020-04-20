@@ -4,13 +4,13 @@ namespace VMSM.Contracts.Entities
 {
     public class VendingMachineProduct : Entity
     {
-        public int VendingMachineId { get; set; }
+        public virtual int VendingMachineId { get; set; }
         [Required]
-        public VendingMachine VendingMachine { get; set; }
-        public int ProductId { get; set; }
+        public virtual VendingMachine VendingMachine { get; set; }
+        public virtual int ProductId { get; set; }
         [Required]
-        public Product Product { get; set; }
+        public virtual Product Product { get; set; }
         [Required]
-        public int Quantity { get; set; }
+        public virtual int Quantity { get; set; }
     }
 }

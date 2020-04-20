@@ -8,14 +8,14 @@ namespace VMSM.Contracts.Entities
     {
         public Schedule()
         {
-            VendingMachines = new List<VendingMachineSchedule>();
+            VendingMachineSchedules = new List<VendingMachineSchedule>();
         }
 
-        public int FieldWorkerId { get; set; }
+        public virtual int FieldWorkerId { get; set; }
         [Required]
         public virtual User FieldWorker { get; set; }
         [Required]
         public virtual Day Day { get; set; }
-        public virtual ICollection<VendingMachineSchedule> VendingMachines { get; set; }
+        public virtual ICollection<VendingMachineSchedule> VendingMachineSchedules { get; set; }
     }
 }

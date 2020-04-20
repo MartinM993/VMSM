@@ -11,7 +11,8 @@ namespace VMSM.Data.DbMaps
             builder.ToTable("Schedules");
             
             builder.HasKey(x => x.Id);
-            builder.HasMany(x => x.VendingMachines);
+            builder.HasMany(x => x.VendingMachineSchedules);
+            builder.HasOne(x => x.FieldWorker);
             builder.HasIndex(x => new { x.FieldWorkerId, x.Day }).IsUnique();
         }
     }

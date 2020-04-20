@@ -19,10 +19,10 @@ namespace VMSM.Contracts.Entities
         public virtual string PhoneNumber { get; set; }
         [Required]
         public virtual Role Role { get; set; }
-        public int AddressId { get; set; }
+        public virtual int AddressId { get; set; }
         [Required]
         public virtual Address Address { get; set; }
-        public int VehicleId { get; set; }
+        public virtual int VehicleId { get; set; }
         public virtual Vehicle Vehicle { get; set; }
     }
 }

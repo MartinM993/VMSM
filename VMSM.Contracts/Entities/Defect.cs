@@ -5,7 +5,7 @@ namespace VMSM.Contracts.Entities
 {
     public class Defect : Entity
     {
-        public int VendingMachineId { get; set; }
+        public virtual int VendingMachineId { get; set; }
         [Required]
         public virtual VendingMachine VendingMachine { get; set; }
         [Required]
