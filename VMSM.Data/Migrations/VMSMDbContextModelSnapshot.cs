@@ -574,7 +574,7 @@ namespace VMSM.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("VehicleId")
+                    b.Property<int?>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -784,10 +784,10 @@ namespace VMSM.Data.Migrations
 
             modelBuilder.Entity("VMSM.Contracts.Entities.VendingMachineSchedule", b =>
                 {
-                    b.Property<int>("VendingMachineId")
+                    b.Property<int?>("VendingMachineId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ScheduleId")
+                    b.Property<int?>("ScheduleId")
                         .HasColumnType("int");
 
                     b.HasKey("VendingMachineId", "ScheduleId");
@@ -924,9 +924,7 @@ namespace VMSM.Data.Migrations
 
                     b.HasOne("VMSM.Contracts.Entities.Vehicle", "Vehicle")
                         .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("VehicleId");
                 });
 
             modelBuilder.Entity("VMSM.Contracts.Entities.VendingMachine", b =>

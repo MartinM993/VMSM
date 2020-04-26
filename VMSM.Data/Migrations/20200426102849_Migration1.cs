@@ -309,7 +309,7 @@ namespace VMSM.Data.Migrations
                     PhoneNumber = table.Column<string>(nullable: false),
                     Role = table.Column<string>(nullable: false),
                     AddressId = table.Column<int>(nullable: false),
-                    VehicleId = table.Column<int>(nullable: false)
+                    VehicleId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -325,7 +325,7 @@ namespace VMSM.Data.Migrations
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

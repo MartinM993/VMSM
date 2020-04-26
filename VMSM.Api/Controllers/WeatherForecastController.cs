@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts;
+using VMSM.Contracts.Interfaces;
 
 namespace VMSM.Api.Controllers
 {
@@ -17,10 +18,12 @@ namespace VMSM.Api.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> logger;
+        private readonly IUserService _userService;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, IUserService userService)
         {
             this.logger = logger;
+            this._userService = userService;
         }
 
         [HttpGet]
@@ -28,6 +31,8 @@ namespace VMSM.Api.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
+
+            var user = _userService.GetUserById(4);
 
             var product = new Product { 
                 PurchasePrice = 20,

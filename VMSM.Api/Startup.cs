@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VMSM.Contracts.Interfaces;
 using VMSM.Data;
+using VMSM.Services;
 
 namespace VMSM.Server
 {
@@ -24,6 +26,8 @@ namespace VMSM.Server
             services.AddControllersWithViews();
 
             services.AddDbContext<VMSMDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
+
+            //services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

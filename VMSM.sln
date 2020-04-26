@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Contracts", "VMSM.Cont
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Data", "VMSM.Data\VMSM.Data.csproj", "{327C16E2-19A8-4771-9817-ACA314C9CF5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VMSM.Services", "VMSM.Services\VMSM.Services.csproj", "{6AC27A5A-FC93-49E1-BF80-AF4C0648DDF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VMSM.Services", "VMSM.Services\VMSM.Services.csproj", "{6AC27A5A-FC93-49E1-BF80-AF4C0648DDF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
