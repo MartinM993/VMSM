@@ -4,13 +4,12 @@ using VMSM.Contracts.Interfaces;
 
 namespace VMSM.Data
 {
-    public class Repository <TEntity, TContext> : IRepository<TEntity>
+    public class Repository <TEntity> : IRepository<TEntity>
         where TEntity : class, IEntity
-        where TContext: VMSMDbContext
     {
-        protected readonly TContext _context;
+        protected readonly VMSMDbContext _context;
 
-        public Repository(TContext context)
+        public Repository(VMSMDbContext context)
         {
            this._context = context;
         }

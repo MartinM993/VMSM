@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts;
 using VMSM.Contracts.Interfaces;
+using VMSM.Data;
 
 namespace VMSM.Api.Controllers
 {
@@ -19,6 +20,7 @@ namespace VMSM.Api.Controllers
 
         private readonly ILogger<WeatherForecastController> logger;
         private readonly IUserService _userService;
+        //private readonly VMSMDbContext _context;
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger, IUserService userService)
         {
@@ -32,7 +34,9 @@ namespace VMSM.Api.Controllers
         {
             var rng = new Random();
 
-            var user = _userService.GetUserById(4);
+            var user = _userService.GetUserById(1);
+
+            //var user = _context.User.Find(1);
 
             var product = new Product { 
                 PurchasePrice = 20,
