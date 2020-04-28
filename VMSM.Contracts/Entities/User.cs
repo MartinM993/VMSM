@@ -20,7 +20,6 @@ namespace VMSM.Contracts.Entities
         [Required]
         public virtual Role Role { get; set; }
         public virtual int AddressId { get; set; }
-        [Required]
         public virtual Address Address { get; set; }
         public virtual int? VehicleId { get; set; }
         public virtual Vehicle Vehicle { get; set; }

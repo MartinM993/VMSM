@@ -1,46 +1,104 @@
 ﻿@page "/fetchdata"
 @using VMSM.Contracts
+@using VMSM.Contracts.Entities
+@using VMSM.Contracts.Requests
+@using System.Collections.Generic
+@using VMSM.Contracts.Enums
 @inject HttpClient Http
 
 <h1>Weather forecast</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (user == null)
 {
-    <p><em>Loading...</em></p>
+
+    <p>@exMess</p>
+    <p>@exMess1</p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+
+    <p><em>@user.Name</em></p>
+    <p><em>@user.LastName</em></p>
+    <p><em>@user.MiddleName</em></p>
+    <p>@exMess1</p>
 }
 
 @code {
     private WeatherForecast[] forecasts;
+    private User user = null;
+    private string exMess;
+    private string exMess1;
+    private List<User> users = new List<User>();
+    private string queryString;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetJsonAsync<WeatherForecast[]>(Routes.Test.Root);
+        //forecasts = await Http.GetJsonAsync<WeatherForecast[]>(Routes.Test.Root);
+        var id = "3";
+        var userTmp = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
+
+
+
+
+        //queryString = GetQuery(new SearchUserRequest {
+
+        //});
+        //users = await Http.GetJsonAsync<List<User>>("api/users" + queryString);
+
+        //########### Post
+        //var userTmp = new User
+        //{
+        //    Name = "Martin",
+        //    LastName = "Test",
+        //    Email = "martin@m.com",
+        //    Password = "pass123",
+        //    PhoneNumber = "075123456",
+        //    Role = Role.Admin,
+        //    AddressId = 1
+        //};
+
+        //userTmp.SetAudit(1);
+
+        //var userId = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.User.Root, userTmp);
+        //user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", userId.ToString()));
+
+        // ############# pur
+        //userTmp.LastName = "Milutinovic";
+        //userTmp.MiddleName = "M";
+        //userTmp.SetAudit(1);
+
+        //await Http.SendJsonAsync(HttpMethod.Put, Routes.User.ById.Replace("{id}", userTmp.Id.ToString()), userTmp);
+
+        //user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
+
+        await Http.DeleteAsync(Routes.User.ById.Replace("{id}", "2"));
+    }
+
+    private string GetQuery(SearchUserRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            parameters.Add($"Name={request.Name}");
+
+        if (!string.IsNullOrWhiteSpace(request.LastName))
+            parameters.Add($"LastName={request.LastName}");
+
+        if (!string.IsNullOrWhiteSpace(request.Email))
+            parameters.Add($"Email={request.Email}");
+
+        if (request.Role != null)
+            parameters.Add($"Role={request.Role.ToString()}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
     }
 
 }

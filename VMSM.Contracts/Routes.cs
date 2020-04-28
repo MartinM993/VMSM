@@ -8,5 +8,11 @@
         {
             public const string Root = ApiPrefix + "/test";
         }
+
+        public static class User
+        {
+            public const string Root = ApiPrefix + "/users";
+            public const string ById = Root + "/{id}";
+        }
     }
 }

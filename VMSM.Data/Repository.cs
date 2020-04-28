@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using VMSM.Contracts.Interfaces;
 
@@ -31,7 +32,9 @@ namespace VMSM.Data
 
         public TEntity Update(TEntity entity)
         {
-            return _context.Set<TEntity>().Attach(entity).Entity;
+            var dbEntity = _context.Set<TEntity>().Attach(entity).Entity;
+            _context.Entry(entity).State = EntityState.Modified;
+            return dbEntity;
         }
 
         public void Delete(int id)
