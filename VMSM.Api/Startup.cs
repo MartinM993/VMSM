@@ -28,6 +28,7 @@ namespace VMSM.Server
             services.AddDbContext<VMSMDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
 
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IAddressService, AddressService>();
 
             services.AddTransient(typeof(IRepository<>), typeof(Data.Repository<>));
         }

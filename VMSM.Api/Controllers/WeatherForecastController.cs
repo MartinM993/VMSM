@@ -34,7 +34,7 @@ namespace VMSM.Api.Controllers
         {
             var rng = new Random();
 
-            var user = _userService.GetUserById(1);
+            //var user = _userService.GetUserById(1);
 
             //var user = _context.User.Find(1);
 

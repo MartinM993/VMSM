@@ -19,15 +19,15 @@
 else
 {
 
-    <p><em>@user.Name</em></p>
-    <p><em>@user.LastName</em></p>
-    <p><em>@user.MiddleName</em></p>
+    <p><em>@user.Town</em></p>
+    <p><em>@user.Line1</em></p>
+    <p><em>@user.ZipCode</em></p>
     <p>@exMess1</p>
 }
 
 @code {
     private WeatherForecast[] forecasts;
-    private User user = null;
+    private Address user = null;
     private string exMess;
     private string exMess1;
     private List<User> users = new List<User>();
@@ -36,15 +36,17 @@ else
     protected override async Task OnInitializedAsync()
     {
         //forecasts = await Http.GetJsonAsync<WeatherForecast[]>(Routes.Test.Root);
-        var id = "3";
-        var userTmp = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
+        //var id = "3";
+        //var userTmp = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
 
 
 
 
-        //queryString = GetQuery(new SearchUserRequest {
-
-        //});
+        queryString = GetQuery(new SearchAddressRequest
+        {
+            Town = "ku",
+            ZipCode = "12"
+        });
         //users = await Http.GetJsonAsync<List<User>>("api/users" + queryString);
 
         //########### Post
@@ -59,12 +61,28 @@ else
         //    AddressId = 1
         //};
 
+        //var address = new Address
+        //{
+        //    Line1 = "test addres",
+        //    Town = "Kuman",
+        //    ZipCode = 1200
+        //};
+
+        //var id = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.Address.Root, address);
+        //var addresses = await Http.GetJsonAsync<List<Address>>(Routes.Address.Root + queryString);
+        //addresses[0].Line1 = "update";
+        //addresses[0].Town = "Kumanovo";
+        //addresses[0].SetAudit(1);
+        //var id = await Http.SendJsonAsync<int>(HttpMethod.Put, Routes.Address.ById.Replace("{id}", addresses[0].Id.ToString()), addresses[0]);
+        //user = await Http.GetJsonAsync<Address>(Routes.Address.ById.Replace("{id}", id.ToString()));
+
+
         //userTmp.SetAudit(1);
 
         //var userId = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.User.Root, userTmp);
         //user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", userId.ToString()));
 
-        // ############# pur
+        // ############# put
         //userTmp.LastName = "Milutinovic";
         //userTmp.MiddleName = "M";
         //userTmp.SetAudit(1);
@@ -73,24 +91,22 @@ else
 
         //user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
 
-        await Http.DeleteAsync(Routes.User.ById.Replace("{id}", "2"));
+        await Http.DeleteAsync(Routes.Address.ById.Replace("{id}", "2"));
     }
 
-    private string GetQuery(SearchUserRequest request)
+    private string GetQuery(SearchAddressRequest request)
     {
         List<string> parameters = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(request.Name))
-            parameters.Add($"Name={request.Name}");
+        if (!string.IsNullOrWhiteSpace(request.Town))
+            parameters.Add($"Town={request.Town}");
 
-        if (!string.IsNullOrWhiteSpace(request.LastName))
-            parameters.Add($"LastName={request.LastName}");
+        if (!string.IsNullOrWhiteSpace(request.ZipCode))
+            parameters.Add($"ZipCode={request.ZipCode}");
 
-        if (!string.IsNullOrWhiteSpace(request.Email))
-            parameters.Add($"Email={request.Email}");
+        if (!string.IsNullOrWhiteSpace(request.Line1))
+            parameters.Add($"Line1={request.Line1}");
 
-        if (request.Role != null)
-            parameters.Add($"Role={request.Role.ToString()}");
 
         var queryString = string.Empty;
         if (parameters.Any())

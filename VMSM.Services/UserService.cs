@@ -15,24 +15,24 @@ namespace VMSM.Services
             _repository = repository;
         }
 
-        public User GetUserById(int id)
+        public User GetById(int id)
         {
             var user = _repository.Get(id);
             return user;
         }
 
-        public IEnumerable<User> GetUsers(SearchUserRequest request)
+        public IEnumerable<User> GetByCriteria(SearchUserRequest request)
         {
             var users = _repository.GetAll();
 
             if (!string.IsNullOrWhiteSpace(request.Name))
-                users = users.Where(x => x.Name.Contains(request.Name));
+                users = users.Where(x => x.Name.ToLower().Contains(request.Name.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(request.LastName))
-                users = users.Where(x => x.LastName.Contains(request.LastName));
+                users = users.Where(x => x.LastName.ToLower().Contains(request.LastName.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(request.Email))
-                users = users.Where(x => x.Email.Contains(request.Email));
+                users = users.Where(x => x.Email.ToLower().Contains(request.Email.ToLower()));
 
             if (request.Role.HasValue)
                 users = users.Where(x => x.Role == request.Role);
@@ -40,7 +40,7 @@ namespace VMSM.Services
             return users;
         }
 
-        public User CreateUser(User request)
+        public User Create(User request)
         {
             var user = _repository.Add(request);
             _repository.Save();
@@ -48,7 +48,7 @@ namespace VMSM.Services
             return user;
         }
 
-        public User UpdateUser(User request)
+        public User Update(User request)
         {
             var user = _repository.Update(request);
             _repository.Save();
@@ -56,7 +56,7 @@ namespace VMSM.Services
             return user;
         }
 
-        public void DeleteUser(int id)
+        public void Delete(int id)
         {
             _repository.Delete(id);
             _repository.Save();
