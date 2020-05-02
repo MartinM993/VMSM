@@ -2,7 +2,7 @@
 
 namespace VMSM.Contracts.Requests
 {
-    public class SearchUserRequest
+    public class UserSearchRequest
     {
         public string Name { get; set; }
         public string LastName { get; set; }

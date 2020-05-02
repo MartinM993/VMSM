@@ -28,7 +28,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.Address.Root)]
-        public IActionResult GetByCriteria([FromQuery]SearchAddressRequest request)
+        public IActionResult GetByCriteria([FromQuery]AddressSearchRequest request)
         {
             var addresses = _addressService.GetByCriteria(request);
 

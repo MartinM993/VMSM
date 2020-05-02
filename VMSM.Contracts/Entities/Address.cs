@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace VMSM.Contracts.Entities
 {
@@ -7,7 +10,7 @@ namespace VMSM.Contracts.Entities
         [Required]
         public virtual string Town { get; set; }
         [Required]
-        public int ZipCode { get; set; }
+        public string ZipCode { get; set; }
         [Required]
         public virtual string Line1 { get; set; }
         public virtual string Line2 { get; set; }

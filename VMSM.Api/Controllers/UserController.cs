@@ -28,7 +28,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.User.Root)]
-        public IActionResult GetByCriteria([FromQuery]SearchUserRequest request)
+        public IActionResult GetByCriteria([FromQuery]UserSearchRequest request)
         {
             var users = _userService.GetByCriteria(request);
 

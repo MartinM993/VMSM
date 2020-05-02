@@ -19,15 +19,15 @@
 else
 {
 
-    <p><em>@user.Town</em></p>
-    <p><em>@user.Line1</em></p>
-    <p><em>@user.ZipCode</em></p>
+    <p><em>@user.Name</em></p>
+    
+    
     <p>@exMess1</p>
 }
 
 @code {
     private WeatherForecast[] forecasts;
-    private Address user = null;
+    private User user = null;
     private string exMess;
     private string exMess1;
     private List<User> users = new List<User>();
@@ -39,15 +39,17 @@ else
         //var id = "3";
         //var userTmp = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
 
+        user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", "1"));
 
 
+        //queryString = GetQuery(new VendingMachineSearchRequest
+        //{
+        //    Name = "ven"
+        //});
 
-        queryString = GetQuery(new SearchAddressRequest
-        {
-            Town = "ku",
-            ZipCode = "12"
-        });
+
         //users = await Http.GetJsonAsync<List<User>>("api/users" + queryString);
+        //Address adr = await Http.GetJsonAsync<Address>(Routes.Address.ById.Replace("{id}", "1"));
 
         //########### Post
         //var userTmp = new User
@@ -58,24 +60,29 @@ else
         //    Password = "pass123",
         //    PhoneNumber = "075123456",
         //    Role = Role.Admin,
+        //    Address = adr
+        //};
+
+        //var address = new VendingMachine
+        //{
+        //    Name = "Venecia",
+        //    Model = "1230p",
+        //    Code = "mm159",
+        //    ProductionYear = 1995,
         //    AddressId = 1
         //};
 
-        //var address = new Address
-        //{
-        //    Line1 = "test addres",
-        //    Town = "Kuman",
-        //    ZipCode = 1200
-        //};
+        //address.SetAudit(1);
 
-        //var id = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.Address.Root, address);
-        //var addresses = await Http.GetJsonAsync<List<Address>>(Routes.Address.Root + queryString);
-        //addresses[0].Line1 = "update";
-        //addresses[0].Town = "Kumanovo";
+        //await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.VendingMachine.Root, address);
+        //var addresses = await Http.GetJsonAsync<List<VendingMachine>>(Routes.VendingMachine.Root + queryString);
+        //addresses[0].Name = "Spacio";
         //addresses[0].SetAudit(1);
-        //var id = await Http.SendJsonAsync<int>(HttpMethod.Put, Routes.Address.ById.Replace("{id}", addresses[0].Id.ToString()), addresses[0]);
-        //user = await Http.GetJsonAsync<Address>(Routes.Address.ById.Replace("{id}", id.ToString()));
+        //var id = await Http.SendJsonAsync<int>(HttpMethod.Put, Routes.VendingMachine.ById.Replace("{id}", addresses[0].Id.ToString()), addresses[0]);
+        //user = await Http.GetJsonAsync<VendingMachine>(Routes.VendingMachine.ById.Replace("{id}", id.ToString()));
 
+
+        //user = await Http.GetJsonAsync<VendingMachine>(Routes.VendingMachine.ById.Replace("{id}", "1"));
 
         //userTmp.SetAudit(1);
 
@@ -91,21 +98,15 @@ else
 
         //user = await Http.GetJsonAsync<User>(Routes.User.ById.Replace("{id}", id));
 
-        await Http.DeleteAsync(Routes.Address.ById.Replace("{id}", "2"));
+        //await Http.DeleteAsync(Routes.Address.ById.Replace("{id}", "2"));
     }
 
-    private string GetQuery(SearchAddressRequest request)
+    private string GetQuery(VendingMachineSearchRequest request)
     {
         List<string> parameters = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(request.Town))
-            parameters.Add($"Town={request.Town}");
-
-        if (!string.IsNullOrWhiteSpace(request.ZipCode))
-            parameters.Add($"ZipCode={request.ZipCode}");
-
-        if (!string.IsNullOrWhiteSpace(request.Line1))
-            parameters.Add($"Line1={request.Line1}");
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            parameters.Add($"Name={request.Name}");
 
 
         var queryString = string.Empty;

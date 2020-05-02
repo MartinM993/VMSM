@@ -21,7 +21,7 @@ namespace VMSM.Services
             return user;
         }
 
-        public IEnumerable<User> GetByCriteria(SearchUserRequest request)
+        public IEnumerable<User> GetByCriteria(UserSearchRequest request)
         {
             var users = _repository.GetAll();
 

@@ -10,7 +10,7 @@ using VMSM.Data;
 namespace VMSM.Data.Migrations
 {
     [DbContext(typeof(VMSMDbContext))]
-    [Migration("20200426102849_Migration1")]
+    [Migration("20200502114648_Migration1")]
     partial class Migration1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -247,8 +247,9 @@ namespace VMSM.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ZipCode")
-                        .HasColumnType("int");
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -548,7 +549,7 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -582,6 +583,9 @@ namespace VMSM.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("VehicleId");
 
@@ -663,7 +667,7 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("CostOfDefects")
                         .HasColumnType("int");
@@ -704,6 +708,9 @@ namespace VMSM.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.ToTable("VendingMachines");
                 });

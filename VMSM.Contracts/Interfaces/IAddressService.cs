@@ -7,7 +7,7 @@ namespace VMSM.Contracts.Interfaces
     public interface IAddressService
     {
         Address GetById(int id);
-        IEnumerable<Address> GetByCriteria(SearchAddressRequest request);
+        IEnumerable<Address> GetByCriteria(AddressSearchRequest request);
         Address Create(Address request);
         Address Update(Address request);
         void Delete(int id);

@@ -18,7 +18,6 @@ namespace VMSM.Contracts.Entities
         public virtual string Code { get; set; }
         public virtual VendingMachineCategory Category { get; set; }
         public virtual int AddressId { get; set; }
-        [Required]
         public virtual Address Address { get; set; }
         public virtual int Income { get; set; }
         public virtual bool IsActive { get; set; }

@@ -12,6 +12,7 @@ namespace VMSM.Data.DbMaps
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Role).HasConversion<string>();
+            builder.HasIndex(x => x.Email).IsUnique();
             builder.HasOne(x => x.Address);
             builder.HasOne(x => x.Vehicle);
         }

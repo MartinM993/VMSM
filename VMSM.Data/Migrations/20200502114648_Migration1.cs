@@ -18,7 +18,7 @@ namespace VMSM.Data.Migrations
                     CreatedBy = table.Column<int>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     Town = table.Column<string>(nullable: false),
-                    ZipCode = table.Column<int>(nullable: false),
+                    ZipCode = table.Column<string>(nullable: false),
                     Line1 = table.Column<string>(nullable: false),
                     Line2 = table.Column<string>(nullable: true)
                 },
@@ -636,6 +636,12 @@ namespace VMSM.Data.Migrations
                 column: "AddressId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_VehicleId",
                 table: "Users",
                 column: "VehicleId");
@@ -666,6 +672,12 @@ namespace VMSM.Data.Migrations
                 name: "IX_VendingMachines_AddressId",
                 table: "VendingMachines",
                 column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VendingMachines_Code",
+                table: "VendingMachines",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendingMachineSchedules_ScheduleId",

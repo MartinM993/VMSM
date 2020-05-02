@@ -4,11 +4,6 @@
     {
         internal const string ApiPrefix = "api";
 
-        public static class Test
-        {
-            public const string Root = ApiPrefix + "/test";
-        }
-
         public static class User
         {
             public const string Root = ApiPrefix + "/users";
@@ -18,6 +13,12 @@
         public static class Address
         {
             public const string Root = ApiPrefix + "/addresses";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class VendingMachine
+        {
+            public const string Root = ApiPrefix + "/vendingmachines";
             public const string ById = Root + "/{id}";
         }
     }

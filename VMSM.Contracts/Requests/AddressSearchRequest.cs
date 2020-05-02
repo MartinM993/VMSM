@@ -2,7 +2,7 @@
 
 namespace VMSM.Contracts.Requests
 {
-    public class SearchAddressRequest
+    public class AddressSearchRequest
     {
         public string Line1 { get; set; }
         public string ZipCode { get; set; }

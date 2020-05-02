@@ -25,12 +25,13 @@ namespace VMSM.Server
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<VMSMDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
+            services.AddDbContext<VMSMDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IAddressService, AddressService>();
+            services.AddTransient<IVendingMachineService, VendingMachineService>();
 
-            services.AddTransient(typeof(IRepository<>), typeof(Data.Repository<>));
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
