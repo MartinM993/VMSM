@@ -18,6 +18,7 @@ namespace VMSM.Services
         public VendingMachine GetById(int id)
         {
             var vendingMachine = _repository.Get(id);
+
             return vendingMachine;
         }
 

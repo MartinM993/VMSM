@@ -18,6 +18,7 @@ namespace VMSM.Services
         public Address GetById(int id)
         {
             var address = _repository.Get(id);
+
             return address;
         }
 
@@ -28,8 +29,8 @@ namespace VMSM.Services
             if (!string.IsNullOrWhiteSpace(request.Line1))
                 addresses = addresses.Where(x => x.Line1.ToLower().Contains(request.Line1.ToLower()));
 
-            //if (!string.IsNullOrWhiteSpace(request.ZipCode))
-            //    addresses = addresses.Where(x => x.ZipCode.ToLower().Contains(request.ZipCode.ToLower()));
+            if (!string.IsNullOrWhiteSpace(request.ZipCode))
+                addresses = addresses.Where(x => x.ZipCode.ToLower().Contains(request.ZipCode.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(request.Town))
                 addresses = addresses.Where(x => x.Town.ToLower().Contains(request.Town.ToLower()));

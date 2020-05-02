@@ -18,6 +18,7 @@ namespace VMSM.Services
         public User GetById(int id)
         {
             var user = _repository.Get(id);
+
             return user;
         }
 

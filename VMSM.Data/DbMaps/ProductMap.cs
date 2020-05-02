@@ -17,6 +17,7 @@ namespace VMSM.Data.DbMaps
             builder.Property(x => x.PurchasePrice).HasColumnType("decimal(18,4)");
             builder.Property(x => x.Rebate).HasColumnType("decimal(18,4)");
             builder.Property(x => x.Tax).HasColumnType("decimal(18,4)");
+            builder.HasIndex(x => x.Code).IsUnique();
         }
     }
 }

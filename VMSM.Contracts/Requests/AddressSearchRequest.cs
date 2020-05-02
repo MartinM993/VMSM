@@ -1,6 +1,4 @@
-﻿using VMSM.Contracts.Enums;
-
-namespace VMSM.Contracts.Requests
+﻿namespace VMSM.Contracts.Requests
 {
     public class AddressSearchRequest
     {
