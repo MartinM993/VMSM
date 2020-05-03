@@ -1,6 +1,6 @@
 ﻿namespace VMSM.Contracts.Entities
 {
-    public class VendingMachineSchedule
+    public class VendingMachineSchedule : Entity
     {
         public virtual int? VendingMachineId { get; set; }
         public virtual VendingMachine VendingMachine { get; set; }

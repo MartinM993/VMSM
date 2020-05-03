@@ -10,10 +10,11 @@ namespace VMSM.Data.DbMaps
         {
             builder.ToTable("VendingMachineSchedules");
 
-            builder.HasKey(x => new { x.VendingMachineId, x.ScheduleId});
+            builder.HasKey(x => x.Id);
+            builder.HasIndex(x => new { x.ScheduleId, x.VendingMachineId}).IsUnique();
             builder.HasOne(x => x.VendingMachine)
                    .WithMany(y => y.VendingMachineSchedules)
-                   .HasForeignKey(x => x.VendingMachineId).OnDelete(DeleteBehavior.NoAction);
+                   .HasForeignKey(x => x.VendingMachineId);
             builder.HasOne(x => x.Schedule)
                    .WithMany(y => y.VendingMachineSchedules)
                    .HasForeignKey(x => x.ScheduleId);

@@ -12,7 +12,6 @@ namespace VMSM.Contracts.Entities
         }
 
         public virtual int FieldWorkerId { get; set; }
-        [Required]
         public virtual User FieldWorker { get; set; }
         [Required]
         public virtual Day Day { get; set; }

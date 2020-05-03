@@ -33,6 +33,8 @@ namespace VMSM.Server
             services.AddTransient<IDefectService, DefectService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IFieldWorkerProductService, FieldWorkerProductService>();
+            services.AddTransient<IIncomeService, IncomeService>();
+            services.AddTransient<IScheduleService, ScheduleService>();
 
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         }

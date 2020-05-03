@@ -10,7 +10,7 @@ using VMSM.Data;
 namespace VMSM.Data.Migrations
 {
     [DbContext(typeof(VMSMDbContext))]
-    [Migration("20200502114648_Migration1")]
+    [Migration("20200503174511_Migration1")]
     partial class Migration1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -339,9 +339,6 @@ namespace VMSM.Data.Migrations
                     b.Property<int>("CollectedIncome")
                         .HasColumnType("int");
 
-                    b.Property<int>("CollectedIncomeId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
 
@@ -377,7 +374,7 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
@@ -423,6 +420,9 @@ namespace VMSM.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.ToTable("Products");
                 });
 
@@ -442,8 +442,9 @@ namespace VMSM.Data.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Day")
-                        .HasColumnType("int");
+                    b.Property<string>("Day")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("FieldWorkerId")
                         .HasColumnType("int");
@@ -793,15 +794,36 @@ namespace VMSM.Data.Migrations
 
             modelBuilder.Entity("VMSM.Contracts.Entities.VendingMachineSchedule", b =>
                 {
-                    b.Property<int?>("VendingMachineId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<int?>("ScheduleId")
                         .HasColumnType("int");
 
-                    b.HasKey("VendingMachineId", "ScheduleId");
+                    b.Property<int?>("VendingMachineId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("ScheduleId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("VendingMachineId");
+
+                    b.HasIndex("ScheduleId", "VendingMachineId")
+                        .IsUnique()
+                        .HasFilter("[ScheduleId] IS NOT NULL AND [VendingMachineId] IS NOT NULL");
 
                     b.ToTable("VendingMachineSchedules");
                 });
@@ -979,15 +1001,11 @@ namespace VMSM.Data.Migrations
                 {
                     b.HasOne("VMSM.Contracts.Entities.Schedule", "Schedule")
                         .WithMany("VendingMachineSchedules")
-                        .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ScheduleId");
 
                     b.HasOne("VMSM.Contracts.Entities.VendingMachine", "VendingMachine")
                         .WithMany("VendingMachineSchedules")
-                        .HasForeignKey("VendingMachineId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .HasForeignKey("VendingMachineId");
                 });
 #pragma warning restore 612, 618
         }

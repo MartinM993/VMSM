@@ -13,7 +13,7 @@ namespace VMSM.Data.DbMaps
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Category).HasConversion<string>();
             builder.HasIndex(x => x.Code ).IsUnique();
-            builder.HasMany(x => x.VendingMachineSchedules);
+            builder.HasMany(x => x.VendingMachineSchedules).WithOne(y => y.VendingMachine);
             builder.HasOne(x => x.Address);
         }
     }

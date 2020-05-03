@@ -39,5 +39,17 @@
             public const string Root = ApiPrefix + "/fieldworkerproducts";
             public const string ById = Root + "/{id}";
         }
+
+        public static class Income
+        {
+            public const string Root = ApiPrefix + "/incomes";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class Schedule
+        {
+            public const string Root = ApiPrefix + "/schedules";
+            public const string ById = Root + "/{id}";
+        }
     }
 }

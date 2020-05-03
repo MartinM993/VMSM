@@ -364,7 +364,6 @@ namespace VMSM.Data.Migrations
                     CreatedBy = table.Column<int>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     VendingMachineId = table.Column<int>(nullable: false),
-                    CollectedIncomeId = table.Column<int>(nullable: false),
                     CollectedIncome = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -482,7 +481,7 @@ namespace VMSM.Data.Migrations
                     CreatedBy = table.Column<int>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: true),
                     FieldWorkerId = table.Column<int>(nullable: false),
-                    Day = table.Column<int>(nullable: false)
+                    Day = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -530,23 +529,30 @@ namespace VMSM.Data.Migrations
                 name: "VendingMachineSchedules",
                 columns: table => new
                 {
-                    VendingMachineId = table.Column<int>(nullable: false),
-                    ScheduleId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ModifiedBy = table.Column<int>(nullable: true),
+                    DateModified = table.Column<DateTime>(nullable: true),
+                    CreatedBy = table.Column<int>(nullable: true),
+                    DateCreated = table.Column<DateTime>(nullable: true),
+                    VendingMachineId = table.Column<int>(nullable: true),
+                    ScheduleId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VendingMachineSchedules", x => new { x.VendingMachineId, x.ScheduleId });
+                    table.PrimaryKey("PK_VendingMachineSchedules", x => x.Id);
                     table.ForeignKey(
                         name: "FK_VendingMachineSchedules_Schedules_ScheduleId",
                         column: x => x.ScheduleId,
                         principalTable: "Schedules",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VendingMachineSchedules_VendingMachines_VendingMachineId",
                         column: x => x.VendingMachineId,
                         principalTable: "VendingMachines",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -608,6 +614,12 @@ namespace VMSM.Data.Migrations
                 name: "IX_Incomes_VendingMachineId",
                 table: "Incomes",
                 column: "VendingMachineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_Code",
+                table: "Products",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Schedules_FieldWorkerId_Day",
@@ -680,9 +692,16 @@ namespace VMSM.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_VendingMachineSchedules_ScheduleId",
+                name: "IX_VendingMachineSchedules_VendingMachineId",
                 table: "VendingMachineSchedules",
-                column: "ScheduleId");
+                column: "VendingMachineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VendingMachineSchedules_ScheduleId_VendingMachineId",
+                table: "VendingMachineSchedules",
+                columns: new[] { "ScheduleId", "VendingMachineId" },
+                unique: true,
+                filter: "[ScheduleId] IS NOT NULL AND [VendingMachineId] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
