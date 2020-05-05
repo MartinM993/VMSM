@@ -8,62 +8,34 @@
 @if (tmp == null)
 {
 
-    <p>@exMess</p>
-    <p>@exMess1</p>
+
 }
 else
 {
 
-    <p><em>@tmp.Day</em></p>
+    <p><em>@tmp.Price</em></p>
+    <p><em>@tmp.VendingMachine.Model</em></p>
+    <p><em>@tmp.Product.Code</em></p>
     //<p><em>@tmp.VendingMachine.Code</em></p>
 
-    <p>@exMess1</p>
 }
 
 @code {
-    private WeatherForecast[] forecasts;
-    private Schedule tmp = null;
-    private string exMess;
-    private string exMess1;
-    //private List<User> users = new List<User>();
-    private string queryString;
+    private VendingMachineProductPrice tmp = null;
 
     protected override async Task OnInitializedAsync()
     {
-
-        //var sch = new Schedule
-        //{
-        //    Day = Day.Monday,
-        //    FieldWorkerId = 1
-        //};
-
-        //var id = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.Schedule.Root, sch);
-        var byId = await Http.GetJsonAsync<Schedule>(Routes.Schedule.ById.Replace("{id}", "1"));
-        var search = new ScheduleSearchRequest
+        var x = new VendingMachineProductPrice
         {
-            Day = Day.Monday
+            Price = 150,
+            VendingMachineId = 2,
+            ProductId = 1
         };
+        x.SetAudit(1);
 
-        queryString = GetQuery(search);
-        var users = await Http.GetJsonAsync<List<Schedule>>(Routes.Schedule.Root + queryString);
-        tmp = users[0];
-    }
+        var id = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.VendingMachineProductPrice.Root, x);
 
-    private string GetQuery(ScheduleSearchRequest request)
-    {
-        List<string> parameters = new List<string>();
-
-        if (request.Day.HasValue)
-            parameters.Add($"Day={request.Day.ToString()}");
-
-
-        var queryString = string.Empty;
-        if (parameters.Any())
-        {
-            queryString = $"?{string.Join("&", parameters)}";
-        };
-
-        return queryString;
+        tmp = await Http.GetJsonAsync<VendingMachineProductPrice>(Routes.VendingMachineProductPrice.ById.Replace("{id}", "1"));
     }
 
 }

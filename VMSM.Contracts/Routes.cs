@@ -51,5 +51,35 @@
             public const string Root = ApiPrefix + "/schedules";
             public const string ById = Root + "/{id}";
         }
+
+        public static class StorageExport
+        {
+            public const string Root = ApiPrefix + "/storageexports";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class StorageImport
+        {
+            public const string Root = ApiPrefix + "/storageimports";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class Vehicle
+        {
+            public const string Root = ApiPrefix + "/vehicles";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class VendingMachineProduct
+        {
+            public const string Root = ApiPrefix + "/vendingmachineproducts";
+            public const string ById = Root + "/{id}";
+        }
+
+        public static class VendingMachineProductPrice
+        {
+            public const string Root = ApiPrefix + "/vendingmachineproductprices";
+            public const string ById = Root + "/{id}";
+        }
     }
 }

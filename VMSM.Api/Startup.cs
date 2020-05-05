@@ -23,8 +23,12 @@ namespace VMSM.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson(
+                    options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
 
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
+            
             services.AddDbContext<VMSMDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
 
             services.AddTransient<IUserService, UserService>();
@@ -35,6 +39,11 @@ namespace VMSM.Server
             services.AddTransient<IFieldWorkerProductService, FieldWorkerProductService>();
             services.AddTransient<IIncomeService, IncomeService>();
             services.AddTransient<IScheduleService, ScheduleService>();
+            services.AddTransient<IStorageExportService, StorageExportService>();
+            services.AddTransient<IStorageImportService, StorageImportService>();
+            services.AddTransient<IVehicleService, VehicleService>();
+            services.AddTransient<IVendingMachineProductService, VendingMachineProductService>();
+            services.AddTransient<IVendingMachineProductPriceService, VendingMachineProductPriceService>();
 
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         }

@@ -624,7 +624,7 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
@@ -643,9 +643,15 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("RegistrationPlate")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("RegistrationPlate")
+                        .IsUnique();
 
                     b.ToTable("Vehicles");
                 });
@@ -746,8 +752,7 @@ namespace VMSM.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("VendingMachineId", "ProductId")
-                        .IsUnique();
+                    b.HasIndex("VendingMachineId");
 
                     b.ToTable("VendingMachineProducts");
                 });

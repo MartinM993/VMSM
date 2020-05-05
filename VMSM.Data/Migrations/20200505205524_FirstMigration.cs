@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace VMSM.Data.Migrations
 {
-    public partial class Migration1 : Migration
+    public partial class FirstMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -659,6 +659,18 @@ namespace VMSM.Data.Migrations
                 column: "VehicleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_Code",
+                table: "Vehicles",
+                column: "Code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_RegistrationPlate",
+                table: "Vehicles",
+                column: "RegistrationPlate",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VendingMachineProductPrices_ProductId",
                 table: "VendingMachineProductPrices",
                 column: "ProductId");
@@ -675,10 +687,9 @@ namespace VMSM.Data.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VendingMachineProducts_VendingMachineId_ProductId",
+                name: "IX_VendingMachineProducts_VendingMachineId",
                 table: "VendingMachineProducts",
-                columns: new[] { "VendingMachineId", "ProductId" },
-                unique: true);
+                column: "VendingMachineId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VendingMachines_AddressId",

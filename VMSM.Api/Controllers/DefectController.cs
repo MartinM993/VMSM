@@ -27,7 +27,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.Defect.Root)]
-        public IActionResult GetByCriteria()
+        public IActionResult GetByAll()
         {
             var defects = _defectService.GetAll();
 

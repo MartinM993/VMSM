@@ -10,8 +10,8 @@ using VMSM.Data;
 namespace VMSM.Data.Migrations
 {
     [DbContext(typeof(VMSMDbContext))]
-    [Migration("20200503174511_Migration1")]
-    partial class Migration1
+    [Migration("20200505205524_FirstMigration")]
+    partial class FirstMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -626,7 +626,7 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
@@ -645,9 +645,15 @@ namespace VMSM.Data.Migrations
 
                     b.Property<string>("RegistrationPlate")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("RegistrationPlate")
+                        .IsUnique();
 
                     b.ToTable("Vehicles");
                 });
@@ -748,8 +754,7 @@ namespace VMSM.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.HasIndex("VendingMachineId", "ProductId")
-                        .IsUnique();
+                    b.HasIndex("VendingMachineId");
 
                     b.ToTable("VendingMachineProducts");
                 });

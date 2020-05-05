@@ -13,7 +13,6 @@ namespace VMSM.Data.DbMaps
             builder.HasKey(x => x.Id);
             builder.HasOne(x => x.VendingMachine);
             builder.HasOne(x => x.Product);
-            builder.HasIndex(x => new { x.VendingMachineId, x.ProductId }).IsUnique();
         }
     }
 }
