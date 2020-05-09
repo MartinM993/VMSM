@@ -6,10 +6,10 @@ namespace VMSM.Contracts.Interfaces
 {
     public interface IUserService
     {
-        User GetById(int id);
-        IEnumerable<User> GetByCriteria(UserSearchRequest request);
-        User Create(User request);
-        User Update(User request);
+        AppUser GetById(int id);
+        IEnumerable<AppUser> GetByCriteria(UserSearchRequest request);
+        AppUser Create(AppUser request);
+        AppUser Update(AppUser request);
         void Delete(int id);
     }
 }

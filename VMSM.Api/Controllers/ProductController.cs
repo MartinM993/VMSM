@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController : BaseController
     {
         private readonly IProductService _productService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, UserManager<AppUser> userManager) : base(userManager)
         {
             _productService = productService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]Product request)
         {
             var product = new Product();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 product = _productService.Create(request);
@@ -51,6 +53,7 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Product.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]Product request)
         {
+            request.SetAudit(CurrentLoggedUserId);
             var product = _productService.Update(request);
 
             return Ok(product.Id);

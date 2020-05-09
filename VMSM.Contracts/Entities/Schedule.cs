@@ -12,7 +12,7 @@ namespace VMSM.Contracts.Entities
         }
 
         public virtual int FieldWorkerId { get; set; }
-        public virtual User FieldWorker { get; set; }
+        public virtual AppUser FieldWorker { get; set; }
         [Required]
         public virtual Day Day { get; set; }
         public virtual ICollection<VendingMachineSchedule> VendingMachineSchedules { get; set; }

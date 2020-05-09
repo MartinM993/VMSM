@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class VendingMachineProductPriceController : ControllerBase
+    public class VendingMachineProductPriceController : BaseController
     {
         private readonly IVendingMachineProductPriceService _vendingMachineProductPriceService;
 
-        public VendingMachineProductPriceController(IVendingMachineProductPriceService vendingMachineProductPriceService)
+        public VendingMachineProductPriceController(IVendingMachineProductPriceService vendingMachineProductPriceService, UserManager<AppUser> userManager) : base(userManager)
         {
             _vendingMachineProductPriceService = vendingMachineProductPriceService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]VendingMachineProductPrice request)
         {
             var vendingMachineProductPrice = new VendingMachineProductPrice();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 vendingMachineProductPrice = _vendingMachineProductPriceService.Create(request);
@@ -51,6 +53,7 @@ namespace VMSM.Api.Controllers
         [Route(Routes.VendingMachineProductPrice.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]VendingMachineProductPrice request)
         {
+            request.SetAudit(CurrentLoggedUserId);
             var vendingMachineProductPrice = _vendingMachineProductPriceService.Update(request);
 
             return Ok(vendingMachineProductPrice.Id);

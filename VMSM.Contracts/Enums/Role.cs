@@ -2,9 +2,9 @@
 {
     public enum Role
     {
-        Admin,
-        OfficeWorker,
-        FieldWorker,
-        StorageWorker
+        Admin = 1,
+        OfficeWorker = 2,
+        FieldWorker = 3,
+        StorageWorker = 4
     }
 }

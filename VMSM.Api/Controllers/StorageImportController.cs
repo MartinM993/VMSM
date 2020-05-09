@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class StorageImportController : ControllerBase
+    public class StorageImportController : BaseController
     {
         private readonly IStorageImportService _storageImportService;
 
-        public StorageImportController(IStorageImportService storageImportService)
+        public StorageImportController(IStorageImportService storageImportService, UserManager<AppUser> userManager) : base(userManager)
         {
             _storageImportService = storageImportService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]StorageImport request)
         {
             var storageImport = new StorageImport();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 storageImport = _storageImportService.Create(request);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class AddressController : ControllerBase
+    public class AddressController : BaseController
     {
         private readonly IAddressService _addressService;
 
-        public AddressController(IAddressService addressService)
+        public AddressController(IAddressService addressService, UserManager<AppUser> userManager) : base(userManager)
         {
             _addressService = addressService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]Address request)
         {
             var address = new Address();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 address = _addressService.Create(request);
@@ -51,6 +53,7 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Address.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]Address request)
         {
+            request.SetAudit(CurrentLoggedUserId);
             var address = _addressService.Update(request);
 
             return Ok(address.Id);

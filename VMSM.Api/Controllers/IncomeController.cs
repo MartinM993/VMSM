@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class IncomeController : ControllerBase
+    public class IncomeController : BaseController
     {
         private readonly IIncomeService _incomeService;
 
-        public IncomeController(IIncomeService incomeService)
+        public IncomeController(IIncomeService incomeService, UserManager<AppUser> userManager) : base(userManager)
         {
             _incomeService = incomeService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]Income request)
         {
             var income = new Income();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 income = _incomeService.Create(request);

@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
 using VMSM.Data;
 using VMSM.Services;
@@ -26,10 +29,26 @@ namespace VMSM.Server
             services.AddControllersWithViews().AddNewtonsoftJson(
                     options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 );
+            services.AddRazorPages();
 
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
             
             services.AddDbContext<VMSMDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
+
+            services.AddIdentity<AppUser, IdentityRole<int>>(options => options.SignIn.RequireConfirmedAccount = false)            
+                .AddEntityFrameworkStores<VMSMDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
+
+            services.AddAuthentication().AddIdentityServerJwt();
 
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IAddressService, AddressService>();
@@ -68,6 +87,9 @@ namespace VMSM.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

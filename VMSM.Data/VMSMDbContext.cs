@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VMSM.Contracts.Entities;
 using VMSM.Data.DbMaps;
 
 namespace VMSM.Data
 {
-    public class VMSMDbContext : IdentityDbContext
+    public class VMSMDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
         public VMSMDbContext(DbContextOptions<VMSMDbContext> options) : base(options)
         {
@@ -21,7 +22,6 @@ namespace VMSM.Data
             builder.ApplyConfiguration(new StorageExportMap());
             builder.ApplyConfiguration(new StorageImportMap());
             builder.ApplyConfiguration(new UserMap());
-            builder.ApplyConfiguration(new UserRoleMap());
             builder.ApplyConfiguration(new VehicleMap());
             builder.ApplyConfiguration(new VendingMachineMap());
             builder.ApplyConfiguration(new VendingMachineScheduleMap());
@@ -32,20 +32,19 @@ namespace VMSM.Data
             base.OnModelCreating(builder);
         }
 
-        public DbSet<Address> Address { get; set; }
-        public DbSet<Defect> Defect { get; set; }
-        public DbSet<FieldWorkerProduct> FieldWorkerProduct { get; set; }
-        public DbSet<Product> Product { get; set; }
-        public DbSet<Schedule> Schedule { get; set; }
-        public DbSet<StorageExport> StorageExport { get; set; }
-        public DbSet<StorageImport> StorageImport { get; set; }
-        public DbSet<User> User { get; set; }
-        public DbSet<UserRole> UserRole { get; set; }
-        public DbSet<Vehicle> Vehicle { get; set; }
-        public DbSet<VendingMachine> VendingMachine { get; set; }
-        public DbSet<VendingMachineSchedule> VendingMachineSchedule { get; set; }
-        public DbSet<Income> Income { get; set; }
-        public DbSet<VendingMachineProductPrice> VendingMachineProductPrice { get; set; }
-        public DbSet<VendingMachineProduct> VendingMachineProduct { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Defect> Defects { get; set; }
+        public DbSet<FieldWorkerProduct> FieldWorkerProducts { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
+        public DbSet<StorageExport> StorageExports { get; set; }
+        public DbSet<StorageImport> StorageImports { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<VendingMachine> VendingMachines { get; set; }
+        public DbSet<VendingMachineSchedule> VendingMachineSchedules { get; set; }
+        public DbSet<Income> Incomes { get; set; }
+        public DbSet<VendingMachineProductPrice> VendingMachineProductPrices { get; set; }
+        public DbSet<VendingMachineProduct> VendingMachineProducts { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class ScheduleController : ControllerBase
+    public class ScheduleController : BaseController
     {
         private readonly IScheduleService _scheduleService;
 
-        public ScheduleController(IScheduleService scheduleService)
+        public ScheduleController(IScheduleService scheduleService, UserManager<AppUser> userManager) : base(userManager)
         {
             _scheduleService = scheduleService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]Schedule request)
         {
             var schedule = new Schedule();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 schedule = _scheduleService.Create(request);
@@ -51,6 +53,7 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Schedule.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]Schedule request)
         {
+            request.SetAudit(CurrentLoggedUserId);
             var schedule = _scheduleService.Update(request);
 
             return Ok(schedule.Id);

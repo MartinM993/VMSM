@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -7,11 +8,11 @@ using VMSM.Contracts.Interfaces;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class VendingMachineProductController : ControllerBase
+    public class VendingMachineProductController : BaseController
     {
         private readonly IVendingMachineProductService _vendingMachineProductService;
 
-        public VendingMachineProductController(IVendingMachineProductService vendingMachineProductService)
+        public VendingMachineProductController(IVendingMachineProductService vendingMachineProductService, UserManager<AppUser> userManager) : base(userManager)
         {
             _vendingMachineProductService = vendingMachineProductService;
         }
@@ -39,6 +40,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]VendingMachineProduct request)
         {
             var vendingMachineProduct = new VendingMachineProduct();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 vendingMachineProduct = _vendingMachineProductService.Create(request);

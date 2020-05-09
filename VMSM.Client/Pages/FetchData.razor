@@ -13,29 +13,29 @@
 else
 {
 
-    <p><em>@tmp.Price</em></p>
-    <p><em>@tmp.VendingMachine.Model</em></p>
-    <p><em>@tmp.Product.Code</em></p>
+    <p><em>@tmp.Name</em></p>
+    
     //<p><em>@tmp.VendingMachine.Code</em></p>
 
 }
 
 @code {
-    private VendingMachineProductPrice tmp = null;
+    private AppUser tmp = null;
 
     protected override async Task OnInitializedAsync()
     {
-        var x = new VendingMachineProductPrice
+        var x = new AppUser
         {
-            Price = 150,
-            VendingMachineId = 2,
-            ProductId = 1
+            Name = "Martin",
+            LastName = "M",
+            Email = "martin@martin.com",
+            UserRole = Role.OfficeWorker,
+            AddressId = 1
         };
-        x.SetAudit(1);
 
-        var id = await Http.SendJsonAsync<int>(HttpMethod.Post, Routes.VendingMachineProductPrice.Root, x);
+        await Http.SendJsonAsync(HttpMethod.Post, Routes.User.Root, x);
 
-        tmp = await Http.GetJsonAsync<VendingMachineProductPrice>(Routes.VendingMachineProductPrice.ById.Replace("{id}", "1"));
+        tmp = await Http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", "5"));
     }
 
 }

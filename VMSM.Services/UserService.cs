@@ -8,21 +8,21 @@ namespace VMSM.Services
 {
     public class UserService : IUserService
     {
-        private readonly IRepository<User> _repository;
+        private readonly IRepository<AppUser> _repository;
 
-        public UserService(IRepository<User> repository)
+        public UserService(IRepository<AppUser> repository)
         {
             _repository = repository;
         }
 
-        public User GetById(int id)
+        public AppUser GetById(int id)
         {
             var user = _repository.Get(id);
 
             return user;
         }
 
-        public IEnumerable<User> GetByCriteria(UserSearchRequest request)
+        public IEnumerable<AppUser> GetByCriteria(UserSearchRequest request)
         {
             var users = _repository.GetAll();
 
@@ -36,12 +36,12 @@ namespace VMSM.Services
                 users = users.Where(x => x.Email.ToLower().Contains(request.Email.ToLower()));
 
             if (request.Role.HasValue)
-                users = users.Where(x => x.Role == request.Role);
+                users = users.Where(x => x.UserRole == request.Role);
 
             return users;
         }
 
-        public User Create(User request)
+        public AppUser Create(AppUser request)
         {
             var user = _repository.Add(request);
             _repository.Save();
@@ -49,7 +49,7 @@ namespace VMSM.Services
             return user;
         }
 
-        public User Update(User request)
+        public AppUser Update(AppUser request)
         {
             var user = _repository.Update(request);
             _repository.Save();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
@@ -8,11 +9,11 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class StorageExportController : ControllerBase
+    public class StorageExportController : BaseController
     {
         private readonly IStorageExportService _storageExportService;
 
-        public StorageExportController(IStorageExportService storageExportService)
+        public StorageExportController(IStorageExportService storageExportService, UserManager<AppUser> userManager) : base(userManager)
         {
             _storageExportService = storageExportService;
         }
@@ -40,6 +41,7 @@ namespace VMSM.Api.Controllers
         public IActionResult Create([FromBody]StorageExport request)
         {
             var storageExport = new StorageExport();
+            request.SetAudit(CurrentLoggedUserId);
 
             if (ModelState.IsValid)
                 storageExport = _storageExportService.Create(request);
