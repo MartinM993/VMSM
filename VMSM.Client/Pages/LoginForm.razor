@@ -1,0 +1,54 @@
+﻿@page "/login"
+@inject IAuthService _authService
+@inject NavigationManager _navigationManager
+
+@if (showErrors)
+{
+    <div class="alert alert-danger" role="alert">
+        <p>@errorMesssage</p>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        <EditForm Model="login" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <InputText Id="email" Class="form-control" @bind-Value="login.Email" />
+                <ValidationMessage For="@(() => login.Email)" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText Id="password" type="password" Class="form-control" @bind-Value="login.Password" />
+                <ValidationMessage For="@(() => login.Password)" />
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private Login login = new Login();
+    private bool showErrors;
+    public string errorMesssage = "";
+
+    private async Task HandleLogin()
+    {
+        showErrors = false;
+
+        var result = await _authService.Login(login);
+
+        if (result.Successful)
+        {
+            _navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            errorMesssage = result.Error;
+            showErrors = true;
+        }
+    }
+}

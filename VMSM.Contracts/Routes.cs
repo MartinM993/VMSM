@@ -81,5 +81,15 @@
             public const string Root = ApiPrefix + "/vendingmachineproductprices";
             public const string ById = Root + "/{id}";
         }
+
+        public static class Login
+        {
+            public const string Root = ApiPrefix + "/login";
+        }
+
+        public static class Logout
+        {
+            public const string Root = ApiPrefix + "/logout";
+        }
     }
 }

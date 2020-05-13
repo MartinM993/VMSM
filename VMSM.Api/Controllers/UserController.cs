@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
+using VMSM.Contracts.Enums;
 using VMSM.Contracts.Interfaces;
 using VMSM.Contracts.Requests;
 
@@ -18,11 +21,14 @@ namespace VMSM.Api.Controllers
             _userService = userService;
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
         [Route(Routes.User.ById)]
         public IActionResult GetById([FromRoute]int id)
         {
             var user = _userService.GetById(id);
+            var tmp = CurrentLoggedUserId;
+            var x = _userService.GetById(tmp);
 
             return Ok(user);
         }

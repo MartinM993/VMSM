@@ -1,5 +1,6 @@
 ﻿@page "/fetchdata"
 @inject HttpClient Http
+@attribute [Authorize]
 
 <h1>Weather forecast</h1>
 
@@ -14,7 +15,7 @@ else
 {
 
     <p><em>@tmp.Name</em></p>
-    
+
     //<p><em>@tmp.VendingMachine.Code</em></p>
 
 }
@@ -24,16 +25,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var x = new AppUser
-        {
-            Name = "Martin",
-            LastName = "M",
-            Email = "martin@martin.com",
-            UserRole = Role.OfficeWorker,
-            AddressId = 1
-        };
+        //var x = new AppUser
+        //{
+        //    Name = "Martin",
+        //    LastName = "M",
+        //    Email = "martin@martin.com",
+        //    UserRole = Role.OfficeWorker,
+        //    AddressId = 1
+        //};
 
-        await Http.SendJsonAsync(HttpMethod.Post, Routes.User.Root, x);
+        //await Http.SendJsonAsync(HttpMethod.Post, Routes.User.Root, x);
 
         tmp = await Http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", "5"));
     }
