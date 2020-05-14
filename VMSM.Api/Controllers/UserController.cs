@@ -12,23 +12,25 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserController : BaseController
     {
         private readonly IUserService _userService;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public UserController(IUserService userService, UserManager<AppUser> userManager) : base(userManager)
+        public UserController(IUserService userService, RoleManager<IdentityRole<int>> roleManager, UserManager<AppUser> userManager) : base(userManager)
         {
             _userService = userService;
+            _roleManager = roleManager;
+
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = nameof(Role.Admin))]
         [HttpGet]
         [Route(Routes.User.ById)]
         public IActionResult GetById([FromRoute]int id)
-        {
+        {   
             var user = _userService.GetById(id);
-            var tmp = CurrentLoggedUserId;
-            var x = _userService.GetById(tmp);
 
             return Ok(user);
         }

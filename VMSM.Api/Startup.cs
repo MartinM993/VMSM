@@ -38,6 +38,7 @@ namespace VMSM.Server
             services.AddDbContext<VMSMDbContext>(options => options.UseLazyLoadingProxies().UseSqlServer(Configuration.GetConnectionString("VMSMDatabase")));
 
             services.AddIdentity<AppUser, IdentityRole<int>>(options => options.SignIn.RequireConfirmedAccount = false)            
+                .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<VMSMDbContext>()
                 .AddDefaultTokenProviders();
 

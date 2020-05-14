@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -42,10 +43,16 @@ namespace VMSM.Api.Controllers
                 return BadRequest(loginResult);
             }
 
-            var claims = new[]
+            var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+            var roles = await _signInManager.UserManager.GetRolesAsync(user);
+            var claims = new List<Claim>();
+
+            claims.Add(new Claim(ClaimTypes.Name, request.Email));
+
+            foreach (var role in roles)
             {
-                new Claim(ClaimTypes.Name, request.Email)
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSecurityKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

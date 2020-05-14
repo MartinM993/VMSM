@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using VMSM.Contracts;
 using VMSM.Contracts.Models;
@@ -26,20 +25,18 @@ namespace VMSM.Client.Auth
 
         public async Task<LoginResult> Login(Login loginModel)
         {
-            var loginAsJson = JsonSerializer.Serialize(loginModel);
-            var response = await _httpClient.PostAsync(Routes.Login.Root, new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-            var loginResult = JsonSerializer.Deserialize<LoginResult>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var response = await _httpClient.PostJsonAsync<LoginResult>(Routes.Login.Root, loginModel);
 
-            if (!response.IsSuccessStatusCode)
+            if (response.Successful)
             {
-                return loginResult;
+                await _localStorage.SetItemAsync("authToken", response.Token);
+                ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(response.Token);
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", response.Token);
+
+                return response;
             }
 
-            await _localStorage.SetItemAsync("authToken", loginResult.Token);
-            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", loginResult.Token);
-
-            return loginResult;
+            return response;
         }
 
         public async Task Logout()
