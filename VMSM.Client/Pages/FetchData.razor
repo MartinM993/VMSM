@@ -1,6 +1,6 @@
 ﻿@page "/fetchdata"
 @inject HttpClient Http
-@attribute [Authorize(Roles = nameof(Role.Admin))]
+@attribute [Authorize]
 
 <h1>Weather forecast</h1>
 
@@ -15,14 +15,14 @@ else
 {
 
     <p><em>@tmp.Name</em></p>
-
+   
     //<p><em>@tmp.VendingMachine.Code</em></p>
 
 }
 
 @code {
     private AppUser tmp = null;
-
+    
     protected override async Task OnInitializedAsync()
     {
         //var x = new AppUser
@@ -35,8 +35,8 @@ else
         //};
 
         //await Http.SendJsonAsync(HttpMethod.Post, Routes.User.Root, x);
-
-        tmp = await Http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", "4"));
+        
+        tmp = await Http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
     }
 
 }

@@ -47,7 +47,7 @@ app {
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background-color: steelblue;
 }
 
     .sidebar .top-row {
@@ -180,4 +180,15 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+}
+
+.loginLogoImg {
+    width: 100%;
+    height: 100%;
+    border-right: groove;
+}
+
+.loginBodyForm {
+    border-left: thick;
+    padding-top: 10%
 }

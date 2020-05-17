@@ -1,36 +1,39 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
-using VMSM.Contracts.Enums;
 using VMSM.Contracts.Interfaces;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     public class UserController : BaseController
     {
         private readonly IUserService _userService;
-        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public UserController(IUserService userService, RoleManager<IdentityRole<int>> roleManager, UserManager<AppUser> userManager) : base(userManager)
+        public UserController(IUserService userService, UserManager<AppUser> userManager) : base(userManager)
         {
             _userService = userService;
-            _roleManager = roleManager;
-
         }
 
-        [Authorize(Roles = nameof(Role.Admin))]
         [HttpGet]
         [Route(Routes.User.ById)]
         public IActionResult GetById([FromRoute]int id)
         {   
             var user = _userService.GetById(id);
+
+            return Ok(user);
+        }
+
+        [HttpGet]
+        [Route(Routes.User.CurrentLoggedUser)]
+        public IActionResult GetCurrentLoggedUser()
+        {
+            var user = _userService.GetById(CurrentLoggedUserId);
 
             return Ok(user);
         }

@@ -1,16 +1,34 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="sidebar">
-    <NavMenu />
-</div>
+<AuthorizeView>
+    <Authorized>
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-<div class="main">
-    <div class="top-row px-4">
-        <LoginDisplay />
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-    </div>
+        <div class="main">
+            <div class="top-row px-4" style="background-color: steelblue">
 
-    <div class="content px-4">
-        @Body
-    </div>
-</div>
+            </div>
+
+            <div class="content px-4">
+                @Body
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="container-fluid">
+            <div class="col-12 row">
+                <p>&nbsp;</p>
+            </div>
+            <div class="row" >
+                <div class="col-12 alert alert-danger" role="alert" style="text-align: center">
+                    <p>
+                        You are not authorized on this page, please
+                        <a href="/">Login </a> to gain access on this page!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>

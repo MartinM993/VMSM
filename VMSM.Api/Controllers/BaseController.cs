@@ -19,8 +19,8 @@ namespace VMSM.Api.Controllers
         {
             get
             {
-                Int32.TryParse(_userManager.GetUserId(HttpContext.User), out int id);
-                return id;
+                var currentLoggedUser = _userManager.FindByNameAsync(HttpContext.User.Identity.Name).Result;
+                return currentLoggedUser.Id;
             }
         }
     }

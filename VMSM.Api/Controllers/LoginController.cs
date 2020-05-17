@@ -38,9 +38,9 @@ namespace VMSM.Api.Controllers
             if (!result.Succeeded)
             {
                 loginResult.Successful = false;
-                loginResult.Error = "Username and password are invalid.";
+                loginResult.Error = "Invalid username or password!";
 
-                return BadRequest(loginResult);
+                return Ok(loginResult);
             }
 
             var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
@@ -75,7 +75,7 @@ namespace VMSM.Api.Controllers
         [HttpPost]
         [Route(Routes.Logout.Root)]
         public async Task<IActionResult> Logout()
-        {           
+        {
             await _signInManager.SignOutAsync();
 
             return Ok();
