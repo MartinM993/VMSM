@@ -2,6 +2,7 @@
 @page "/"
 @inject IAuthService _authService
 @inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
 
 <div class="card-body">
     <EditForm Model="login" OnValidSubmit="HandleLogin">
@@ -10,24 +11,18 @@
 
         <div class="form-group">
             <label for="email">Email address</label>
-            <InputText Id="email" Class="form-control" @bind-Value="login.Email" />
+            <RadzenTextBox  Id="email" Class="form-control" @bind-Value="login.Email" />
             <ValidationMessage For="@(() => login.Email)" />
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <InputText Id="password" type="password" Class="form-control" @bind-Value="login.Password" />
+            <RadzenTextBox  Id="password" type="password" Class="form-control test" @bind-Value="login.Password" />
             <ValidationMessage For="@(() => login.Password)" />
         </div>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <RadzenButton type="submit" Text="Login" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
     </EditForm>
 </div>
 
-@if (showErrors)
-{
-    <div class="alert alert-danger" role="alert">
-        <p>@errorMesssage</p>
-    </div>
-}
 
 @code {
     private Login login = new Login();
@@ -46,8 +41,15 @@
         }
         else
         {
-            errorMesssage = result.Error;
-            showErrors = true;
+            var errorMessage = new NotificationMessage() 
+            { 
+                Severity = NotificationSeverity.Error, 
+                Summary = "Login Error:", 
+                Detail = result.Error,
+                Duration = 4000 
+            };
+
+            _notificationService.Notify(errorMessage);
         }
     }
 }

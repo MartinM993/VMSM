@@ -2,7 +2,7 @@
 @attribute [Authorize]
 
 <div class="top-row pl-4 navbar navbar-dark">
-    <a class="navbar-brand oi oi-person" href="counter"> @name @lastName</a>
+    <a class="navbar-brand oi oi-person" href="/user/@id"> @name @lastName</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -37,6 +37,7 @@
     private bool collapseNavMenu = true;
     private string name = string.Empty;
     private string lastName = string.Empty;
+    private int id = 0;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -51,5 +52,6 @@
 
         name = user.Name;
         lastName = user.LastName;
+        id = user.Id;
     }
 }

@@ -22,7 +22,8 @@ else
 
 @code {
     private AppUser tmp = null;
-    
+    private List<Role> roles = Enum.GetValues(typeof(Role)).Cast<Role>().ToList();
+
     protected override async Task OnInitializedAsync()
     {
         //var x = new AppUser
@@ -35,8 +36,8 @@ else
         //};
 
         //await Http.SendJsonAsync(HttpMethod.Post, Routes.User.Root, x);
-        
-        tmp = await Http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
-    }
 
+        tmp = await Http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
+
+    }
 }

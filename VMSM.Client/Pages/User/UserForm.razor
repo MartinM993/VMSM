@@ -1,0 +1,53 @@
+﻿<EditForm Model="@User" OnValidSubmit="@OnValidSubmit" class="formBorder">
+    <DataAnnotationsValidator />
+    <p class="text-center">User Informations</p>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">First Name:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox  @bind-Value="@User.Name" />
+            <ValidationMessage For="@(() => User.Name)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Last Name:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox  @bind-Value="@User.LastName" />
+            <ValidationMessage For="@(() => User.LastName)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Middle Name:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox  @bind-Value="@User.MiddleName" />
+            <ValidationMessage For="@(() => User.MiddleName)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Email:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox @bind-Value="@User.Email" />
+            <ValidationMessage For="@(() => User.Email)" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-6"></div>
+        <div class="col-6">
+            <RadzenButton type="submit" Text="@ButtonText" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public AppUser User { get; set; }
+    [Parameter] public string ButtonText { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

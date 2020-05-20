@@ -1,0 +1,52 @@
+﻿<EditForm Model="@Address" OnValidSubmit="OnValidSubmit" class="formBorder magin-top-15">
+    <DataAnnotationsValidator />
+    <p class="text-center">User Address Informations</p>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Town:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox @bind-Value="@Address.Town" />
+            <ValidationMessage For="@(() => Address.Town)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Zip Code:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox @bind-Value="@Address.ZipCode" />
+            <ValidationMessage For="@(() => Address.ZipCode)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Address Line 1:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox @bind-Value="@Address.Line1" />
+            <ValidationMessage For="@(() => Address.Line1)" />
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-6 text-right">
+            <label class="magin-top-5">Address Line 2:</label>
+        </div>
+        <div class="col-6">
+            <RadzenTextBox @bind-Value="@Address.Line2" />
+            <ValidationMessage For="@(() => Address.Line2)" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6"></div>
+        <div class="col-6">
+            <RadzenButton type="submit" Text="@ButtonText" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public Address Address { get; set; }
+    [Parameter] public string ButtonText { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

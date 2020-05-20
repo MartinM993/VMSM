@@ -1,0 +1,44 @@
+﻿@page "/user/{id:int}"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+
+<UserForm ButtonText="Save" User="user" OnValidSubmit="@EditUser" />
+<AddressForm ButtonText="Save" Address="address" OnValidSubmit="@EditAddress" />
+
+@if (user.Vehicle != null)
+{
+    <VehicleForm ButtonText="Save" Vehicle="vehicle" OnValidSubmit="@EditVehicle" />
+}
+
+
+@code {
+    [Parameter] public int id { get; set; }
+    AppUser user = new AppUser();
+    Address address = new Address();
+    Vehicle vehicle = new Vehicle();
+
+    protected async override Task OnParametersSetAsync()
+    {
+        user = await _http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", id.ToString()));
+        address = user.Address;
+        if (user.Vehicle != null)
+        {
+            vehicle = user.Vehicle;
+        }
+    }
+
+    async Task EditUser()
+    {
+        await _http.SendJsonAsync(HttpMethod.Put, Routes.User.ById.Replace("{id}", id.ToString()), user);
+    }
+
+    async Task EditAddress()
+    {
+        await _http.SendJsonAsync(HttpMethod.Put, Routes.Address.ById.Replace("{id}", user.AddressId.ToString()), user);
+    }
+
+    async Task EditVehicle()
+    {
+        await _http.SendJsonAsync(HttpMethod.Put, Routes.User.ById.Replace("{id}", user.VehicleId.ToString()), user);
+    }
+}

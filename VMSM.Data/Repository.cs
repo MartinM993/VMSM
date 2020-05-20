@@ -32,6 +32,7 @@ namespace VMSM.Data
 
         public TEntity Update(TEntity entity)
         {
+            _context.Entry<TEntity>(entity).State = EntityState.Deleted;
             var dbEntity = _context.Set<TEntity>().Attach(entity).Entity;
             _context.Entry(entity).State = EntityState.Modified;
             return dbEntity;
