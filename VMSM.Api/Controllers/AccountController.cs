@@ -11,34 +11,38 @@ using System.Text;
 using System.Threading.Tasks;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
+using VMSM.Contracts.Interfaces;
 using VMSM.Contracts.Models;
+using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
 {
     [ApiController]
-    public class LoginController : BaseController
+    public class AccountController : BaseController
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
         private readonly SignInManager<AppUser> _signInManager;
 
-        public LoginController(IConfiguration configuration, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager) : base(userManager)
+        public AccountController(IConfiguration configuration, IUserService userService, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager) : base(userManager)
         {
             _configuration = configuration;
             _signInManager = signInManager;
+            _userService = userService;
         }
 
         [HttpPost]
-        [Route(Routes.Login.Root)]
+        [Route(Routes.Account.Login)]
         public async Task<IActionResult> Login([FromBody] Login request)
         {
             var result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
 
-            var loginResult = new LoginResult();
+            var loginResult = new CustomActionResult();
 
             if (!result.Succeeded)
             {
                 loginResult.Successful = false;
-                loginResult.Error = "Invalid username or password!";
+                loginResult.Message = "Invalid username or password!";
 
                 return Ok(loginResult);
             }
@@ -73,12 +77,38 @@ namespace VMSM.Api.Controllers
         }
 
         [HttpPost]
-        [Route(Routes.Logout.Root)]
+        [Route(Routes.Account.Logout)]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Route(Routes.Account.ChangePassword)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassword request)
+        {
+            var user = _userService.GetById(CurrentLoggedUserId);
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            var actionResult = new CustomActionResult 
+            {
+                Successful = true,
+                Message = "Password was successfully changed!"
+            };
+
+            if (!result.Succeeded)
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Change Password action failed, please try again!";
+
+                return Ok(actionResult);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+
+            return Ok(actionResult);
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -15,7 +17,7 @@ namespace VMSM.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddBaseAddressHttpClient();
+            builder.Services.AddSingleton(new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddApiAuthorization();
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddAuthorizationCore();

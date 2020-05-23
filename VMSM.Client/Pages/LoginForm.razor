@@ -7,8 +7,6 @@
 <div class="card-body">
     <EditForm Model="login" OnValidSubmit="HandleLogin">
         <DataAnnotationsValidator />
-        <ValidationSummary />
-
         <div class="form-group">
             <label for="email">Email address</label>
             <RadzenTextBox  Id="email" Class="form-control" @bind-Value="login.Email" />
@@ -16,7 +14,7 @@
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <RadzenTextBox  Id="password" type="password" Class="form-control test" @bind-Value="login.Password" />
+            <RadzenTextBox  Id="password" type="password" Class="form-control" @bind-Value="login.Password" />
             <ValidationMessage For="@(() => login.Password)" />
         </div>
         <RadzenButton type="submit" Text="Login" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
@@ -26,13 +24,9 @@
 
 @code {
     private Login login = new Login();
-    private bool showErrors;
-    public string errorMesssage = "";
 
     private async Task HandleLogin()
     {
-        showErrors = false;
-
         var result = await _authService.Login(login);
 
         if (result.Successful)
@@ -41,12 +35,12 @@
         }
         else
         {
-            var errorMessage = new NotificationMessage() 
-            { 
-                Severity = NotificationSeverity.Error, 
-                Summary = "Login Error:", 
-                Detail = result.Error,
-                Duration = 4000 
+            var errorMessage = new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Error,
+                Summary = "Login Error:",
+                Detail = result.Message,
+                Duration = 4000
             };
 
             _notificationService.Notify(errorMessage);

@@ -83,14 +83,11 @@
             public const string ById = Root + "/{id}";
         }
 
-        public static class Login
+        public static class Account
         {
-            public const string Root = ApiPrefix + "/login";
-        }
-
-        public static class Logout
-        {
-            public const string Root = ApiPrefix + "/logout";
+            public const string Login = ApiPrefix + "/login";
+            public const string Logout = ApiPrefix + "/logout";
+            public const string ChangePassword = ApiPrefix + "/changepassword";
         }
     }
 }

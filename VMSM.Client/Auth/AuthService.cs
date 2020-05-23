@@ -23,9 +23,9 @@ namespace VMSM.Client.Auth
             _localStorage = localStorage;
         }
 
-        public async Task<LoginResult> Login(Login loginModel)
+        public async Task<CustomActionResult> Login(Login loginModel)
         {
-            var response = await _httpClient.PostJsonAsync<LoginResult>(Routes.Login.Root, loginModel);
+            var response = await _httpClient.PostJsonAsync<CustomActionResult>(Routes.Account.Login, loginModel);
 
             if (response.Successful)
             {
@@ -42,7 +42,7 @@ namespace VMSM.Client.Auth
         public async Task Logout()
         {
             _httpClient.DefaultRequestHeaders.Authorization = null;
-            await _httpClient.PostAsync(Routes.Logout.Root, new StringContent("", Encoding.UTF8, "application/json"));
+            await _httpClient.PostAsync(Routes.Account.Logout, new StringContent("", Encoding.UTF8, "application/json"));
             await _localStorage.RemoveItemAsync("authToken");
             ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
         }

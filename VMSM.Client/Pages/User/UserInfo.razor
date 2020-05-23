@@ -1,13 +1,49 @@
 ﻿@page "/user/{id:int}"
 @inject HttpClient _http
 @inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
 
+<ChangePasswordForm ButtonText="Save" ChangePassword="changePassword" OnValidSubmit="ChangePassword" />
 <UserForm ButtonText="Save" User="user" OnValidSubmit="@EditUser" />
 <AddressForm ButtonText="Save" Address="address" OnValidSubmit="@EditAddress" />
 
 @if (user.Vehicle != null)
 {
-    <VehicleForm ButtonText="Save" Vehicle="vehicle" OnValidSubmit="@EditVehicle" />
+    <div class="row col-12 formBorder magin-top-15 magin-bottom-15">
+        <p class="text-center">User Vehicle Informations</p>
+        <div class="row form-group">
+            <div class="col-6 text-right">
+                <label class="magin-top-5">Brand:</label>
+            </div>
+            <div class="col-6">
+                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Brand" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-6 text-right">
+                <label class="magin-top-5">Model:</label>
+            </div>
+            <div class="col-6">
+                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Model" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-6 text-right">
+                <label class="magin-top-5">Code:</label>
+            </div>
+            <div class="col-6">
+                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Code" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-6 text-right">
+                <label class="magin-top-5">Registration Plate:</label>
+            </div>
+            <div class="col-6">
+                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.RegistrationPlate" />
+            </div>
+        </div>
+    </div>
 }
 
 
@@ -16,29 +52,62 @@
     AppUser user = new AppUser();
     Address address = new Address();
     Vehicle vehicle = new Vehicle();
+    ChangePassword changePassword = new ChangePassword();
+    string email = string.Empty;
 
     protected async override Task OnParametersSetAsync()
     {
         user = await _http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", id.ToString()));
         address = user.Address;
+        email = user.Email;
+
         if (user.Vehicle != null)
         {
             vehicle = user.Vehicle;
         }
     }
 
+    async Task ChangePassword()
+    {
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.Account.ChangePassword, changePassword);
+        var errorMessage = new NotificationMessage
+        {
+            Summary = "Change Password:",
+            Detail = actionResult.Message,
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (!actionResult.Successful)
+        {
+            errorMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(errorMessage);
+    }
+
     async Task EditUser()
     {
-        await _http.SendJsonAsync(HttpMethod.Put, Routes.User.ById.Replace("{id}", id.ToString()), user);
+        var errorMessage = new NotificationMessage
+        {
+            Summary = "Update user information:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var result = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.User.ById.Replace("{id}", id.ToString()), user);
+        errorMessage.Detail = result.Message;
+
+        if (!result.Successful)
+        {
+            errorMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(errorMessage);
     }
 
     async Task EditAddress()
     {
         await _http.SendJsonAsync(HttpMethod.Put, Routes.Address.ById.Replace("{id}", user.AddressId.ToString()), user);
-    }
-
-    async Task EditVehicle()
-    {
-        await _http.SendJsonAsync(HttpMethod.Put, Routes.User.ById.Replace("{id}", user.VehicleId.ToString()), user);
     }
 }

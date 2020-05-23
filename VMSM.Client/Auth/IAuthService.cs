@@ -5,7 +5,7 @@ namespace VMSM.Client.Auth
 {
     public interface IAuthService
     {
-        Task<LoginResult> Login(Login loginModel);
+        Task<CustomActionResult> Login(Login loginModel);
         Task Logout();
     }
 }
