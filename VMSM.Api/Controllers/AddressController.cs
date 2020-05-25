@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Models;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
@@ -53,10 +54,27 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Address.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]Address request)
         {
-            request.SetAudit(CurrentLoggedUserId);
-            var address = _addressService.Update(request);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Update address information was successfully!"
+            };
 
-            return Ok(address.Id);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var address = _addressService.Update(request);
+                actionResult.EntityId = address.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Update adress information was unsuccessfully, please try again!";
+
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
 
         [HttpDelete]

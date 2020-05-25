@@ -1,12 +1,12 @@
 ﻿<EditForm Model="@Vehicle" OnValidSubmit="OnValidSubmit" class="formBorder magin-top-15 magin-bottom-15">
     <DataAnnotationsValidator />
-    <p class="text-center">User Vehicle Informations</p>
+    <h3 class="text-center h3-style">User Vehicle Informations</h3>
     <div class="row form-group">
         <div class="col-6 text-right">
             <label class="magin-top-5">Brand:</label>
         </div>
         <div class="col-6">
-            <RadzenTextBox @bind-Value="@Vehicle.Brand" />
+            <RadzenTextBox Disabled="@DisableTextBox" @bind-Value="@Vehicle.Brand" />
             <ValidationMessage For="@(() => Vehicle.Brand)" />
         </div>
     </div>
@@ -15,7 +15,7 @@
             <label class="magin-top-5">Model:</label>
         </div>
         <div class="col-6">
-            <RadzenTextBox @bind-Value="@Vehicle.Model" />
+            <RadzenTextBox Disabled="@DisableTextBox" @bind-Value="@Vehicle.Model" />
             <ValidationMessage For="@(() => Vehicle.Model)" />
         </div>
     </div>
@@ -24,7 +24,7 @@
             <label class="magin-top-5">Code:</label>
         </div>
         <div class="col-6">
-            <RadzenTextBox @bind-Value="@Vehicle.Code" />
+            <RadzenTextBox Disabled="@DisableTextBox" @bind-Value="@Vehicle.Code" />
             <ValidationMessage For="@(() => Vehicle.Code)" />
         </div>
     </div>
@@ -33,14 +33,14 @@
             <label class="magin-top-5">Registration Plate:</label>
         </div>
         <div class="col-6">
-            <RadzenTextBox @bind-Value="@Vehicle.RegistrationPlate" />
+            <RadzenTextBox Disabled="@DisableTextBox" @bind-Value="@Vehicle.RegistrationPlate" />
             <ValidationMessage For="@(() => Vehicle.RegistrationPlate)" />
         </div>
     </div>
     <div class="row">
         <div class="col-6"></div>
         <div class="col-6">
-            <RadzenButton type="submit" Text="@ButtonText" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
+            <RadzenButton type="submit" Visible="VisibleButton" Text="@ButtonText" ButtonStyle="ButtonStyle.Secondary" class="buttonHover" />
         </div>
     </div>
 </EditForm>
@@ -49,4 +49,6 @@
     [Parameter] public Vehicle Vehicle { get; set; }
     [Parameter] public string ButtonText { get; set; }
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public bool DisableTextBox { get; set; }
+    [Parameter] public bool VisibleButton { get; set; }
 }

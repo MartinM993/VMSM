@@ -11,5 +11,6 @@ namespace VMSM.Contracts.Interfaces
         AppUser Create(AppUser request);
         AppUser Update(AppUser request);
         void Delete(int id);
+        void Delete(AppUser request);
     }
 }

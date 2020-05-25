@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Linq;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
@@ -12,10 +13,12 @@ namespace VMSM.Api.Controllers
     public class VehicleController : BaseController
     {
         private readonly IVehicleService _vehicleService;
+        private readonly IUserService _userService;
 
-        public VehicleController(IVehicleService vehicleService, UserManager<AppUser> userManager) : base(userManager)
+        public VehicleController(IVehicleService vehicleService, IUserService userService, UserManager<AppUser> userManager) : base(userManager)
         {
             _vehicleService = vehicleService;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -32,6 +35,16 @@ namespace VMSM.Api.Controllers
         public IActionResult GetByCriteria([FromQuery]VehicleSearchRequest request)
         {
             var vehicles = _vehicleService.GetByCriteria(request);
+
+            return Ok(vehicles);
+        }
+
+        [HttpGet]
+        [Route(Routes.Vehicle.WithoutUser)]
+        public IActionResult WithoutUser()
+        {
+            var vehicleIds = _userService.GetByCriteria(new UserSearchRequest()).Where(x => x.VehicleId != null).Select(x => x.VehicleId).ToList();
+            var vehicles = _vehicleService.GetVehiclesWithoutUser(vehicleIds);
 
             return Ok(vehicles);
         }

@@ -62,5 +62,11 @@ namespace VMSM.Services
             _repository.Delete(id);
             _repository.Save();
         }
+
+        public void Delete(AppUser request)
+        {
+            _repository.Delete(request);
+            _repository.Save();
+        }
     }
 }

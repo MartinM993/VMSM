@@ -25,8 +25,8 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.User.ById)]
-        public IActionResult GetById([FromRoute]int id)
-        {   
+        public IActionResult GetById([FromRoute] int id)
+        {
             var user = _userService.GetById(id);
 
             return Ok(user);
@@ -43,7 +43,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.User.Root)]
-        public IActionResult GetByCriteria([FromQuery]UserSearchRequest request)
+        public IActionResult GetByCriteria([FromQuery] UserSearchRequest request)
         {
             var users = _userService.GetByCriteria(request);
 
@@ -52,44 +52,83 @@ namespace VMSM.Api.Controllers
 
         [HttpPost]
         [Route(Routes.User.Root)]
-        public IActionResult Create([FromBody]AppUser request)
+        public IActionResult Create([FromBody] User request)
         {
-            request.UserName = request.Email;
-            request.NormalizedEmail = request.Email.ToUpper();
-            request.NormalizedUserName = request.Email.ToUpper();
-            request.SetAudit(CurrentLoggedUserId);
+            var appUser = new AppUser
+            {
+                Name = request.Name,
+                MiddleName = request.MiddleName,
+                LastName = request.LastName,
+                Email = request.Email,
+                NormalizedEmail = request.Email.ToUpper(),
+                UserRole = request.Role,
+                AddressId = request.AddressId,
+                VehicleId = request.VehicleId,
+                UserName = request.Email,
+                NormalizedUserName = request.Email.ToUpper()
+            };
 
-            var result = _userManager.CreateAsync(request, "test123").Result;
-            var roleResult = _userManager.AddToRoleAsync(request, request.UserRole.ToString()).Result;
+            var result = _userManager.CreateAsync(appUser, request.Password).Result;
+            var roleResult = _userManager.AddToRoleAsync(appUser, appUser.UserRole.ToString()).Result;
 
-            return Ok();
+            var actionResult = new CustomActionResult()
+            {
+                Successful = true,
+                Message = "User was successfull created!"
+            };
+
+            if (!result.Succeeded)
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create user action failed, please try again!";
+            }
+
+            if (!roleResult.Succeeded)
+            {
+                actionResult.Successful = false;
+                actionResult.Message += "But Role was not added, please try to update the user!";
+            }
+
+            return Ok(actionResult);
         }
 
         [HttpPut]
         [Route(Routes.User.ById)]
-        public IActionResult Update([FromRoute]int id, [FromBody]AppUser request)
+        public IActionResult Update([FromRoute] int id, [FromBody] AppUser request)
         {
             var actionResult = new CustomActionResult
             {
                 Successful = true,
-                Message = "Update user information was successfully!"
+                Message = "Update user information was successfull!"
             };
 
             request.NormalizedEmail = request.Email.Trim().ToUpper();
             request.UserName = request.Email.Trim().ToUpper();
             request.NormalizedUserName = request.Email.Trim().ToUpper();
 
+            var dbUser = _userService.GetById(request.Id);
+
+            if (dbUser == null)
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "User do not exist!";
+
+                return Ok(actionResult);
+            }
+
             try
             {
                 request.SetAudit(CurrentLoggedUserId);
+                _userManager.RemoveFromRoleAsync(dbUser, dbUser.UserRole.ToString());
                 var user = _userService.Update(request);
+                _userManager.AddToRoleAsync(user, request.UserRole.ToString());
                 _signInManager.RefreshSignInAsync(user);
                 actionResult.EntityId = user.Id;
             }
             catch
             {
                 actionResult.Successful = false;
-                actionResult.Message = "Update user information was unsuccessfully, please try again!";
+                actionResult.Message = "Update user information action failed, please try again!";
 
                 return Ok(actionResult);
             }
@@ -99,11 +138,48 @@ namespace VMSM.Api.Controllers
 
         [HttpDelete]
         [Route(Routes.User.ById)]
-        public IActionResult Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute] int id)
         {
-            _userService.Delete(id);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Delete user was successfull!"
+            };
 
-            return Ok();
+            try
+            {
+                _userService.Delete(id);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Delete user action failed, please try again!";
+            }
+
+            return Ok(actionResult);
+        }
+
+        [HttpDelete]
+        [Route(Routes.User.Root)]
+        public IActionResult Delete([FromBody]AppUser request)
+        {
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Delete user was successfull!"
+            };
+
+            try
+            {
+                _userService.Delete(request);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Delete user action failed, please try again!";
+            }
+
+            return Ok(actionResult);
         }
     }
 }

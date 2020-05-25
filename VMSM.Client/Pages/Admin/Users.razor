@@ -1,0 +1,167 @@
+﻿@page "/users"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+    <span class="oi oi-plus" aria-hidden="true"></span> Add new
+</RadzenButton>
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenGrid @ref="userGrid"
+                    Data="@(role == null ? appUsers : appUsers.Where(x => x.UserRole == role))"
+                    TItem="AppUser"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10"
+                    RowUpdate="@OnUpdateRow">
+            <Columns>
+                <RadzenGridColumn TItem="AppUser" Property="Name" Title="Name">
+                    <EditTemplate Context="user">
+                        <RadzenTextBox @bind-Value="user.Name" Name="Name" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Name is required!" Component="Name" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Property="MiddleName" Title="Middle Name" Width="50px">
+                    <EditTemplate Context="user">
+                        <RadzenTextBox @bind-Value="user.MiddleName" Name="MiddleName" Style="width:100%; display: block" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Property="LastName" Title="Last Name">
+                    <EditTemplate Context="user">
+                        <RadzenTextBox @bind-Value="user.LastName" Name="LastName" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Last Name is required!" Component="LastName" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Property="Email" Title="Email">
+                    <EditTemplate Context="user">
+                        <RadzenTextBox @bind-Value="user.Email" Name="Email" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Email is required!" Component="Email" Popup="true" />
+                        <RadzenEmailValidator Component="Email" Text="Provide a valid email address!" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Property="UserRole" Title="Role">
+                    <EditTemplate Context="user">
+                        <RadzenDropDown @bind-Value="@user.UserRole" TextProperty="Text" ValueProperty="Value" Style="width:100%"
+                                        Data="@(Enum.GetValues(typeof(Role)).Cast<Role>().Select(t => new { Text = $"{t}", Value = t }))" />
+                    </EditTemplate>
+                    <FilterTemplate>
+                        <RadzenDropDown @bind-Value="@role" TextProperty="Text" ValueProperty="Value" Style="width:100%"
+                                        Data="@(Enum.GetValues(typeof(Role)).Cast<Role>().Select(t => new { Text = $"{t}", Value = t }))" />
+                    </FilterTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Context="editableGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                    <Template Context="user">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(user))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    </Template>
+                    <EditTemplate Context="user">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(user))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(user))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="AppUser" Context="user" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+                    <Template Context="user">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Medium" Click="@(args => DeleteRow(user))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="user">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="close" Size="ButtonSize.Medium" Click="@(args => DeleteRow(user))">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    IList<AppUser> appUsers;
+    RadzenGrid<AppUser> userGrid;
+    Role? role = null;
+    bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        appUsers = await _http.GetJsonAsync<IList<AppUser>>(Routes.User.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void AddNew()
+    {
+        _navigationManager.NavigateTo("/users/addnew");
+    }
+
+    void EditRow(AppUser user)
+    {
+        userGrid.EditRow(user);
+    }
+
+    async Task OnUpdateRow(AppUser user)
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Update user information:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.User.ById.Replace("{id}", user.Id.ToString()), user);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+    }
+
+    void SaveRow(AppUser user)
+    {
+        userGrid.UpdateRow(user);
+    }
+
+    void CancelEdit(AppUser user)
+    {
+        userGrid.CancelEditRow(user);
+    }
+
+    async Task DeleteRow(AppUser user)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{user.Name} {user.LastName} will be deleted, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Delete user:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Delete, Routes.User.Root, user);
+            notificationMessage.Detail = actionResult.Message;
+            appUsers.Remove(user);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        userGrid.Reload();
+    }
+}

@@ -41,6 +41,18 @@ namespace VMSM.Services
             return vehicles;
         }
 
+        public IEnumerable<Vehicle> GetVehiclesWithoutUser(List<int?> vehicleIds)
+        {
+            var vehicles = _repository.GetAll();
+
+            if (vehicleIds.Any())
+            {
+                vehicles = vehicles.Where(x => vehicleIds.Any(y => y != x.Id));
+            }
+
+            return vehicles;
+        }
+
         public Vehicle Create(Vehicle request)
         {
             var vehicle = _repository.Add(request);

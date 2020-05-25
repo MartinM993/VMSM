@@ -13,7 +13,6 @@ using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
 using VMSM.Contracts.Models;
-using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
 {

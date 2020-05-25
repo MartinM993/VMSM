@@ -69,6 +69,7 @@
         {
             public const string Root = ApiPrefix + "/vehicles";
             public const string ById = Root + "/{id}";
+            public const string WithoutUser = ApiPrefix + "/vehicleswithoutuser";
         }
 
         public static class VendingMachineProduct

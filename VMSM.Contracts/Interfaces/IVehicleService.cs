@@ -8,6 +8,7 @@ namespace VMSM.Contracts.Interfaces
     {
         Vehicle GetById(int id);
         IEnumerable<Vehicle> GetByCriteria(VehicleSearchRequest request);
+        IEnumerable<Vehicle> GetVehiclesWithoutUser(List<int?> userIds);
         Vehicle Create(Vehicle request);
         Vehicle Update(Vehicle request);
         void Delete(int id);

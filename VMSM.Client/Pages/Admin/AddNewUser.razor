@@ -1,0 +1,173 @@
+﻿@page "/users/addnew"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="user" OnValidSubmit="CreateUser" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <p class="text-center">Create new user</p>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">First Name:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@user.Name" />
+                                <ValidationMessage For="@(() => user.Name)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Middle Name:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@user.MiddleName" />
+                                <ValidationMessage For="@(() => user.MiddleName)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Last Name:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@user.LastName" />
+                                <ValidationMessage For="@(() => user.LastName)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Email:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@user.Email" />
+                                <ValidationMessage For="@(() => user.Email)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Role:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@user.Role" TextProperty="Text" ValueProperty="Value"
+                                                Data="@(Enum.GetValues(typeof(Role)).Cast<Role>().Select(x => new { Text = $"{x}", Value = x }))" />
+                                <ValidationMessage For="@(() => user.Role)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Password:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenPassword @bind-Value="@user.Password" />
+                                <ValidationMessage For="@(() => user.Password)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Confirm Password:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenPassword @bind-Value="@user.ConfirmPassword" />
+                                <ValidationMessage For="@(() => user.ConfirmPassword)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Address:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@user.AddressId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Data="@(addresses.Select(x => new { Text = $"{x.Town} - {x.Line1}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => user.AddressId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Vehicle:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@user.VehicleId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Data="@(vehicles.Select(x => new { Text = $"{x.Model} - {x.Code}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => user.AddressId)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Create" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    User user = new User();
+    List<Address> addresses = new List<Address>();
+    List<Vehicle> vehicles = new List<Vehicle>();
+    CustomActionResult actionResult;
+    bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        addresses = await _http.GetJsonAsync<List<Address>>(Routes.Address.Root);
+        vehicles = await _http.GetJsonAsync<List<Vehicle>>(Routes.Vehicle.WithoutUser);
+
+        isLoading = false;
+    }
+
+    async Task CreateUser()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create user:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.User.Root, user);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/users");
+    }
+}

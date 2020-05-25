@@ -1,7 +1,8 @@
 ﻿@inject HttpClient _http
 @attribute [Authorize]
+@using VMSM.Client.Shared.RoleNavMenu
 
-<div class="top-row pl-4 navbar navbar-dark">
+<div class="top-row pl-4 navbar navbar-dark" style="min-width: 250px">
     <a class="navbar-brand oi oi-person" href="/user/@id"> @name @lastName</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -10,21 +11,22 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </li>
+        @if (role == Role.Admin)
+        {
+            <AdminNavMenu></AdminNavMenu>
+        }
+        else if (role == Role.OfficeWorker)
+        {
+            <OfficeWorkerNavMenu></OfficeWorkerNavMenu>
+        }
+        else if (role == Role.FieldWorker)
+        {
+            <FieldWorkerNavMenu></FieldWorkerNavMenu>
+        }
+        else if (role == Role.StorageWorker)
+        {
+            <StorageWorkerNavMenu></StorageWorkerNavMenu>
+        }
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="logout">
                 <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
@@ -37,6 +39,7 @@
     private bool collapseNavMenu = true;
     private string name = string.Empty;
     private string lastName = string.Empty;
+    private Role role;
     private int id = 0;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -53,5 +56,6 @@
         name = user.Name;
         lastName = user.LastName;
         id = user.Id;
+        role = user.UserRole;
     }
 }

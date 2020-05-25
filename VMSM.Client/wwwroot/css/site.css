@@ -223,3 +223,11 @@ app {
     background-color: dodgerblue;
     color: white;
 }
+
+.margin-10{
+    margin: 10px;
+}
+
+.h3-style{
+    color: steelblue
+}

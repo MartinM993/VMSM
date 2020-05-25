@@ -3,49 +3,23 @@
 @inject NavigationManager _navigationManager
 @inject NotificationService _notificationService
 
-<ChangePasswordForm ButtonText="Save" ChangePassword="changePassword" OnValidSubmit="ChangePassword" />
-<UserForm ButtonText="Save" User="user" OnValidSubmit="@EditUser" />
-<AddressForm ButtonText="Save" Address="address" OnValidSubmit="@EditAddress" />
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <ChangePasswordForm ButtonText="Save" ChangePassword="changePassword" OnValidSubmit="ChangePassword" />
+        <UserForm ButtonText="Save" User="user" OnValidSubmit="@EditUser" />
+        <AddressForm ButtonText="Save" Address="address" OnValidSubmit="@EditAddress" />
 
-@if (user.Vehicle != null)
-{
-    <div class="row col-12 formBorder magin-top-15 magin-bottom-15">
-        <p class="text-center">User Vehicle Informations</p>
-        <div class="row form-group">
-            <div class="col-6 text-right">
-                <label class="magin-top-5">Brand:</label>
-            </div>
-            <div class="col-6">
-                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Brand" />
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-6 text-right">
-                <label class="magin-top-5">Model:</label>
-            </div>
-            <div class="col-6">
-                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Model" />
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-6 text-right">
-                <label class="magin-top-5">Code:</label>
-            </div>
-            <div class="col-6">
-                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.Code" />
-            </div>
-        </div>
-        <div class="row form-group">
-            <div class="col-6 text-right">
-                <label class="magin-top-5">Registration Plate:</label>
-            </div>
-            <div class="col-6">
-                <RadzenTextBox Disabled="true" @bind-Value="@user.Vehicle.RegistrationPlate" />
-            </div>
-        </div>
-    </div>
-}
-
+        @if (user.Vehicle != null)
+        {
+            <VehicleForm ButtonText="Save" Vehicle="@vehicle" OnValidSubmit="@EditVehicle" DisableTextBox="DisableTextBox" VisibleButton="VisibleButton" />
+        }
+    </ContentTemplate>
+</SpinLoader>
 
 @code {
     [Parameter] public int id { get; set; }
@@ -54,6 +28,9 @@
     Vehicle vehicle = new Vehicle();
     ChangePassword changePassword = new ChangePassword();
     string email = string.Empty;
+    bool DisableTextBox = true;
+    bool VisibleButton = false;
+    bool isLoading = true;
 
     protected async override Task OnParametersSetAsync()
     {
@@ -65,12 +42,14 @@
         {
             vehicle = user.Vehicle;
         }
+
+        isLoading = false;
     }
 
     async Task ChangePassword()
     {
         var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.Account.ChangePassword, changePassword);
-        var errorMessage = new NotificationMessage
+        var notificationMessage = new NotificationMessage
         {
             Summary = "Change Password:",
             Detail = actionResult.Message,
@@ -80,34 +59,54 @@
 
         if (!actionResult.Successful)
         {
-            errorMessage.Severity = NotificationSeverity.Error;
+            notificationMessage.Severity = NotificationSeverity.Error;
         }
 
-        _notificationService.Notify(errorMessage);
+        _notificationService.Notify(notificationMessage);
     }
 
     async Task EditUser()
     {
-        var errorMessage = new NotificationMessage
+        var notificationMessage = new NotificationMessage
         {
             Summary = "Update user information:",
             Severity = NotificationSeverity.Success,
             Duration = 4000
         };
 
-        var result = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.User.ById.Replace("{id}", id.ToString()), user);
-        errorMessage.Detail = result.Message;
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.User.ById.Replace("{id}", id.ToString()), user);
+        notificationMessage.Detail = actionResult.Message;
 
-        if (!result.Successful)
+        if (!actionResult.Successful)
         {
-            errorMessage.Severity = NotificationSeverity.Error;
+            notificationMessage.Severity = NotificationSeverity.Error;
         }
 
-        _notificationService.Notify(errorMessage);
+        _notificationService.Notify(notificationMessage);
     }
 
     async Task EditAddress()
     {
-        await _http.SendJsonAsync(HttpMethod.Put, Routes.Address.ById.Replace("{id}", user.AddressId.ToString()), user);
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Update user information:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Address.ById.Replace("{id}", user.AddressId.ToString()), user);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+    }
+
+    async Task EditVehicle()
+    {
+        await _http.SendJsonAsync(HttpMethod.Put, Routes.Vehicle.ById.Replace("{id}", user.VehicleId?.ToString()), user);
     }
 }
