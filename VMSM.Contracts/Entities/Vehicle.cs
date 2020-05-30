@@ -6,7 +6,9 @@ namespace VMSM.Contracts.Entities
     {
         [Required]
         public string Code { get; set; }
+        [Required]
         public virtual string Brand { get; set; }
+        [Required]
         public virtual string Model { get; set; }
         [Required]
         public virtual string RegistrationPlate { get; set; }

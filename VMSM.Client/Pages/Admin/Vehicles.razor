@@ -1,0 +1,157 @@
+﻿@page "/vehicles"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+            <span class="oi oi-plus" aria-hidden="true"></span> Add New Vehicle
+        </RadzenButton>
+        <RadzenGrid @ref="vehicleGrid"
+                    Data="@vehicles"
+                    TItem="Vehicle"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10"
+                    RowUpdate="@OnUpdateRow">
+            <Columns>
+                <RadzenGridColumn TItem="Vehicle" Property="Brand" Title="Brand">
+                    <EditTemplate Context="vehicle">
+                        <RadzenTextBox @bind-Value="@vehicle.Brand" Name="Brand" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Brand is required!" Component="Brand" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Vehicle" Property="Model" Title="Model">
+                    <EditTemplate Context="vehicle">
+                        <RadzenTextBox @bind-Value="@vehicle.Model" Name="Model" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Model is required!" Component="Model" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Vehicle" Property="RegistrationPlate" Title="RegistrationPlate">
+                    <EditTemplate Context="vehicle">
+                        <RadzenTextBox @bind-Value="@vehicle.RegistrationPlate" Name="RegistrationPlate" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Registration Plate is required!" Component="RegistrationPlate" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Vehicle" Property="Code" Title="Code">
+                    <EditTemplate Context="vehicle">
+                        <RadzenTextBox @bind-Value="@vehicle.Code" Name="Code" Style="width:100%; display: block" />
+                        <RadzenRequiredValidator Text="Code is required!" Component="Code" Popup="true" />
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Vehicle" Context="editableUserGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                    <Template Context="vehicle">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(vehicle))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    </Template>
+                    <EditTemplate Context="vehicle">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(vehicle))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(vehicle))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Vehicle" Context="user" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+                    <Template Context="vehicle">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vehicle))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="vehicle">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vehicle))">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Vehicle> vehicles;
+    RadzenGrid<Vehicle> vehicleGrid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vehicles = await _http.GetJsonAsync<IList<Vehicle>>(Routes.Vehicle.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/vehicles/addnew");
+    }
+
+    async Task OnUpdateRow(Vehicle vehicle)
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create vehicle:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Vehicle.ById.Replace("{id}", vehicle.Id.ToString()), vehicle);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+        StateHasChanged();
+    }
+
+    void EditRow(Vehicle vehicle)
+    {
+        vehicleGrid.EditRow(vehicle);
+    }
+
+    void SaveRow(Vehicle vehicle)
+    {
+        vehicleGrid.UpdateRow(vehicle);
+    }
+
+    void CancelEdit(Vehicle vehicle)
+    {
+        vehicleGrid.CancelEditRow(vehicle);
+    }
+
+    async Task DeleteRow(Vehicle vehicle)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{vehicle.Brand}: {vehicle.Model} {vehicle.RegistrationPlate} will be deleted, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Delete vehicle:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Delete, Routes.Vehicle.ById.Replace("{id}", vehicle.Id.ToString()), vehicle);
+
+            notificationMessage.Detail = actionResult.Message;
+            vehicles.Remove(vehicle);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        vehicleGrid.Reload();
+    }
+}

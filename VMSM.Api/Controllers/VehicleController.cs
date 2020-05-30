@@ -5,6 +5,7 @@ using System.Linq;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Models;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
@@ -53,32 +54,80 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Vehicle.Root)]
         public IActionResult Create([FromBody]Vehicle request)
         {
-            var vehicle = new Vehicle();
-            request.SetAudit(CurrentLoggedUserId);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Vehicle was successfull created!"
+            };
 
-            if (ModelState.IsValid)
-                vehicle = _vehicleService.Create(request);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var vehicle = _vehicleService.Create(request);
+                actionResult.EntityId = vehicle.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create vehicle was unsuccessfully, please try again!";
 
-            return Ok(vehicle.Id);
+                return Ok(actionResult);
+            }
+            
+
+            return Ok(actionResult);
         }
 
         [HttpPut]
         [Route(Routes.Vehicle.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]Vehicle request)
         {
-            request.SetAudit(CurrentLoggedUserId);
-            var vehicle = _vehicleService.Update(request);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Update vehicle information was successfully!"
+            };
 
-            return Ok(vehicle.Id);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var vehicle = _vehicleService.Update(request);
+                actionResult.EntityId = vehicle.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Update vehicle information was unsuccessfully, please try again!";
+
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
 
         [HttpDelete]
         [Route(Routes.Vehicle.ById)]
         public IActionResult Delete([FromRoute]int id)
         {
-            _vehicleService.Delete(id);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Delete vehicle was successfull!"
+            };
 
-            return Ok();
+            try
+            {
+                _vehicleService.Delete(id);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Delete vehicle action failed, please try again!";
+
+                return Ok(actionResult);
+            }     
+
+            return Ok(actionResult);
         }
     }
 }
