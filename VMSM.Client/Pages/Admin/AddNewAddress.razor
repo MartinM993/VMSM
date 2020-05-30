@@ -1,0 +1,109 @@
+﻿@page "/addresses/addnew"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@address" OnValidSubmit="CreateAddress" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <p class="text-center h3-style">Create new address</p>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Town:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@address.Town" />
+                                <ValidationMessage For="@(() => address.Town)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Zip Code:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@address.ZipCode" />
+                                <ValidationMessage For="@(() => address.ZipCode)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Address Line 1:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@address.Line1" />
+                                <ValidationMessage For="@(() => address.Line1)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Address Line 1:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@address.Line2" />
+                                <ValidationMessage For="@(() => address.Line2)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Create" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    Address address = new Address();
+    bool isLoading = true;
+
+    protected override void OnInitialized()
+    {
+        isLoading = false;
+    }
+
+    async Task CreateAddress()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create address:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.Address.Root, address);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/addresses");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/addresses");
+    }
+}

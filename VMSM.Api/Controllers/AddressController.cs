@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
@@ -10,6 +12,7 @@ using VMSM.Contracts.Requests;
 namespace VMSM.Api.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AddressController : BaseController
     {
         private readonly IAddressService _addressService;
@@ -21,7 +24,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.Address.ById)]
-        public IActionResult GetById([FromRoute]int id)
+        public IActionResult GetById([FromRoute] int id)
         {
             var address = _addressService.GetById(id);
 
@@ -30,7 +33,7 @@ namespace VMSM.Api.Controllers
 
         [HttpGet]
         [Route(Routes.Address.Root)]
-        public IActionResult GetByCriteria([FromQuery]AddressSearchRequest request)
+        public IActionResult GetByCriteria([FromQuery] AddressSearchRequest request)
         {
             var addresses = _addressService.GetByCriteria(request);
 
@@ -39,20 +42,34 @@ namespace VMSM.Api.Controllers
 
         [HttpPost]
         [Route(Routes.Address.Root)]
-        public IActionResult Create([FromBody]Address request)
+        public IActionResult Create([FromBody] Address request)
         {
-            var address = new Address();
-            request.SetAudit(CurrentLoggedUserId);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Address was successfull created!"
+            };
 
-            if (ModelState.IsValid)
-                address = _addressService.Create(request);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var address = _addressService.Create(request);
+                actionResult.EntityId = address.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create address was unsuccessfully, please try again!";
 
-            return Ok(address.Id);
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
 
         [HttpPut]
         [Route(Routes.Address.ById)]
-        public IActionResult Update([FromRoute]int id, [FromBody]Address request)
+        public IActionResult Update([FromRoute] int id, [FromBody] Address request)
         {
             var actionResult = new CustomActionResult
             {
@@ -69,7 +86,7 @@ namespace VMSM.Api.Controllers
             catch
             {
                 actionResult.Successful = false;
-                actionResult.Message = "Update adress information was unsuccessfully, please try again!";
+                actionResult.Message = "Update address information was unsuccessfully, please try again!";
 
                 return Ok(actionResult);
             }
@@ -79,11 +96,27 @@ namespace VMSM.Api.Controllers
 
         [HttpDelete]
         [Route(Routes.Address.ById)]
-        public IActionResult Delete([FromRoute]int id)
+        public IActionResult Delete([FromRoute] int id)
         {
-            _addressService.Delete(id);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Delete address was successfull!"
+            };
 
-            return Ok();
+            try
+            {
+                _addressService.Delete(id);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Delete address action failed, please try again!";
+
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
     }
 }

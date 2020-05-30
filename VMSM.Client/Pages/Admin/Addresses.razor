@@ -12,16 +12,145 @@
         </div>
     </LoadingTemplate>
     <ContentTemplate>
-
+        <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+            <span class="oi oi-plus" aria-hidden="true"></span> Add New Address
+        </RadzenButton>
+        <RadzenGrid @ref="addressGrid"
+                    Data="@addresses"
+                    TItem="Address"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10"
+                    RowUpdate="@OnUpdateRow">
+            <Columns>
+                <RadzenGridColumn TItem="Address" Property="Town" Title="Town">
+                    <EditTemplate Context="address">
+                        <RadzenTextBox  @bind-Value="@address.Town" Name="Town" Style="width:100%; display: block"/>
+                        <RadzenRequiredValidator Text="Town is required!" Component="Town" Popup="true"/>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Address" Property="ZipCode" Title="Zip Code">
+                    <EditTemplate Context="address">
+                        <RadzenTextBox @bind-Value="@address.ZipCode" Name="ZipCode" Style="width:100%; display: block"/>
+                        <RadzenRequiredValidator Text="Zip Code is required!" Component="ZipCode" Popup="true"/>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Address" Property="Line1" Title="Address Line 1">
+                    <EditTemplate Context="address">
+                        <RadzenTextBox @bind-Value="address.Line1" Name="Line1" Style="width:100%; display: block"/>
+                        <RadzenRequiredValidator Text="Address Line 1 is required!" Component="Line1" Popup="true"/>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Address" Property="Line2" Title="Address Line 2">
+                    <EditTemplate Context="address">
+                        <RadzenTextBox @bind-Value="address.Line2" Name="Line2" Style="width:100%; display: block"/>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Address" Context="editableUserGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                    <Template Context="address">
+                        <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(address))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                    </Template>
+                    <EditTemplate Context="address">
+                        <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(address))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                        <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(address))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Address" Context="user" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+                    <Template Context="address">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(address))">
+                        </RadzenButton>
+                    </Template>
+                    <EditTemplate Context="address">
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(address))">
+                        </RadzenButton>
+                    </EditTemplate>
+                </RadzenGridColumn>
+            </Columns>
+        </RadzenGrid>
     </ContentTemplate>
 </SpinLoader>
 
 @code {
     bool isLoading = true;
     IList<Address> addresses;
+    RadzenGrid<Address> addressGrid;
 
     protected override async Task OnInitializedAsync()
     {
         addresses = await _http.GetJsonAsync<IList<Address>>(Routes.Address.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/addresses/addnew");
+    }
+
+    async Task OnUpdateRow(Address address)
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create address:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Address.ById.Replace("{id}", address.Id.ToString()), address);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+        StateHasChanged();
+    }
+
+    void EditRow(Address address)
+    {
+        addressGrid.EditRow(address);
+    }
+
+    void SaveRow(Address address)
+    {
+        addressGrid.UpdateRow(address);
+    }
+
+    void CancelEdit(Address address)
+    {
+        addressGrid.CancelEditRow(address);
+    }
+
+    async Task DeleteRow(Address address)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{address.Town} ({address.ZipCode}) {address.Line1} will be deleted, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Delete address:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Delete, Routes.Address.ById.Replace("{id}", address.Id.ToString()), address);
+
+            notificationMessage.Detail = actionResult.Message;
+            addresses.Remove(address);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        addressGrid.Reload();
     }
 }

@@ -168,6 +168,8 @@ namespace VMSM.Api.Controllers
             {
                 actionResult.Successful = false;
                 actionResult.Message = "Delete user action failed, please try again!";
+
+                return Ok(actionResult);
             }
 
             return Ok(actionResult);
@@ -191,6 +193,8 @@ namespace VMSM.Api.Controllers
             {
                 actionResult.Successful = false;
                 actionResult.Message = "Delete user action failed, please try again!";
+
+                return Ok(actionResult);
             }
 
             return Ok(actionResult);
