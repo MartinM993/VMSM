@@ -16,7 +16,7 @@
                 <div class="col-12">
                     <EditForm Model="user" OnValidSubmit="CreateUser" class="formBorder magin-top-15">
                         <DataAnnotationsValidator />
-                        <p class="text-center">Create new user</p>
+                        <p class="text-center h3-style">Create new user</p>
                         <div class="row form-group">
                             <div class="col-6 text-right">
                                 <label class="magin-top-5">First Name:</label>
@@ -89,6 +89,7 @@
                                 <RadzenDropDown @bind-Value="@user.AddressId"
                                                 TextProperty="Text"
                                                 ValueProperty="Value"
+                                                Placeholder="Select address.."
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 FilterOperator="StringFilterOperator.Contains"
                                                 AllowFiltering="true"
@@ -104,11 +105,13 @@
                                 <RadzenDropDown @bind-Value="@user.VehicleId"
                                                 TextProperty="Text"
                                                 ValueProperty="Value"
+                                                AllowClear="true" 
+                                                Placeholder="Select vehicle.."
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 FilterOperator="StringFilterOperator.Contains"
                                                 AllowFiltering="true"
                                                 Data="@(vehicles.Select(x => new { Text = $"{x.Model} - {x.Code}", Value = x.Id }))" />
-                                <ValidationMessage For="@(() => user.AddressId)" />
+                                <ValidationMessage For="@(() => user.VehicleId)" />
                             </div>
                         </div>
                         <div class="row">

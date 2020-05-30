@@ -27,9 +27,23 @@ namespace VMSM.Api.Controllers
         [Route(Routes.User.ById)]
         public IActionResult GetById([FromRoute] int id)
         {
+            var actionResult = new CustomActionResultEntity<AppUser>
+            {
+                Successful = true
+            };
+
             var user = _userService.GetById(id);
 
-            return Ok(user);
+            if(user == null)
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "User do not exist!";
+
+                return Ok(actionResult);
+            }
+            actionResult.Entity = user;
+
+            return Ok(actionResult);
         }
 
         [HttpGet]
@@ -71,7 +85,7 @@ namespace VMSM.Api.Controllers
             var result = _userManager.CreateAsync(appUser, request.Password).Result;
             var roleResult = _userManager.AddToRoleAsync(appUser, appUser.UserRole.ToString()).Result;
 
-            var actionResult = new CustomActionResult()
+            var actionResult = new CustomActionResult
             {
                 Successful = true,
                 Message = "User was successfull created!"
@@ -99,11 +113,11 @@ namespace VMSM.Api.Controllers
             var actionResult = new CustomActionResult
             {
                 Successful = true,
-                Message = "Update user information was successfull!"
+                Message = "Update user was successfull!"
             };
 
             request.NormalizedEmail = request.Email.Trim().ToUpper();
-            request.UserName = request.Email.Trim().ToUpper();
+            request.UserName = request.Email.Trim();
             request.NormalizedUserName = request.Email.Trim().ToUpper();
 
             var dbUser = _userService.GetById(request.Id);
@@ -128,7 +142,7 @@ namespace VMSM.Api.Controllers
             catch
             {
                 actionResult.Successful = false;
-                actionResult.Message = "Update user information action failed, please try again!";
+                actionResult.Message = "Update user action failed, please try again!";
 
                 return Ok(actionResult);
             }

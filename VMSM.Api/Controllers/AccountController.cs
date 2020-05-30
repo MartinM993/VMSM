@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using VMSM.Client;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
@@ -91,7 +92,7 @@ namespace VMSM.Api.Controllers
             var user = _userService.GetById(CurrentLoggedUserId);
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
-            var actionResult = new CustomActionResult 
+            var actionResult = new CustomActionResult
             {
                 Successful = true,
                 Message = "Password was successfully changed!"

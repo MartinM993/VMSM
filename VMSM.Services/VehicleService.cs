@@ -44,10 +44,10 @@ namespace VMSM.Services
         public IEnumerable<Vehicle> GetVehiclesWithoutUser(List<int?> vehicleIds)
         {
             var vehicles = _repository.GetAll();
-
+            
             if (vehicleIds.Any())
             {
-                vehicles = vehicles.Where(x => vehicleIds.Any(y => y != x.Id));
+                vehicles = vehicles.ToList().Where(x => !vehicleIds.Contains(x.Id));
             }
 
             return vehicles;

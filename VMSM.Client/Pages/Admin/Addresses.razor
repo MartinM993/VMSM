@@ -1,0 +1,27 @@
+﻿@page "/addresses"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Address> addresses;
+
+    protected override async Task OnInitializedAsync()
+    {
+        addresses = await _http.GetJsonAsync<IList<Address>>(Routes.Address.Root);
+    }
+}

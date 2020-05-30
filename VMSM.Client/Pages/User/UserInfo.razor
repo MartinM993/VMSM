@@ -34,7 +34,8 @@
 
     protected async override Task OnParametersSetAsync()
     {
-        user = await _http.GetJsonAsync<AppUser>(Routes.User.ById.Replace("{id}", id.ToString()));
+        var customActionResult = await _http.GetJsonAsync<CustomActionResultEntity<AppUser>>(Routes.User.ById.Replace("{id}", id.ToString()));
+        user = customActionResult.Entity;
         address = user.Address;
         email = user.Email;
 

@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using VMSM.Contracts;
+using VMSM.Contracts.Entities;
 using VMSM.Contracts.Models;
 
 namespace VMSM.Client.Auth
