@@ -1,0 +1,55 @@
+﻿@page "/products"
+@inject HttpClient _http
+@attribute [Authorize(Roles = nameof(Role.StorageWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenGrid @ref="grid"
+                    Data="@(productCategory == null ? 
+                            products : 
+                            products.Where(x => x.Category == productCategory))"
+                    TItem="Product"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10">
+            <Columns>
+                <RadzenGridColumn TItem="Product" Property="Name" Title="Name" />
+                <RadzenGridColumn TItem="Product" Property="Code" Title="Code" />
+                <RadzenGridColumn TItem="Product" Property="Category" Title="Category">
+                    <FilterTemplate>
+                        <RadzenDropDown @bind-Value="@productCategory"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        Style="width:100%"
+                                        AllowClear="true"
+                                        Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                    </FilterTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="Product" Property="Quantity" Title="Quantity" />
+                <RadzenGridColumn TItem="Product" Property="StorageQuantity" Title="Storage Quantity" />
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Product> products;
+    RadzenGrid<Product> grid;
+    ProductCategory? productCategory = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _http.GetJsonAsync<IList<Product>>(Routes.Product.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+}

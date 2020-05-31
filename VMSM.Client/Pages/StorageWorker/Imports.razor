@@ -1,0 +1,92 @@
+﻿@page "/imports"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@attribute [Authorize(Roles = nameof(Role.StorageWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+            <span class="oi oi-plus" aria-hidden="true"></span> Add New Storage Import
+        </RadzenButton>
+        <RadzenGrid @ref="grid"
+                    Data="@(productCategory == null ? 
+                            imports : 
+                            imports.Where(x => x.Product.Category == productCategory))"
+                    TItem="StorageImport"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10">
+            <Columns>
+                <RadzenGridColumn TItem="StorageImport" Property="Product.Name" Title="Product Name" />
+                <RadzenGridColumn TItem="StorageImport" Property="Product.Code" Title="Product Code" />
+                <RadzenGridColumn TItem="StorageImport" Property="Product.Category" Title="Product Category">
+                    <FilterTemplate>
+                        <RadzenDropDown @bind-Value="@productCategory"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        Style="width:100%"
+                                        AllowClear="true"
+                                        Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                    </FilterTemplate>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="StorageImport" Property="Product.StorageQuantity" Title="Product Storage Quantity" />
+                <RadzenGridColumn TItem="StorageImport" Property="Quantity" Title="Imported Quantity" />
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<StorageImport> imports;
+    RadzenGrid<StorageImport> grid;
+    ProductCategory? productCategory = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await _http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
+
+        var queryString = GetQuery(new StorageImportSearchRequest
+        {
+            StorageWorkerId = user.Id
+        });
+        imports = await _http.GetJsonAsync<IList<StorageImport>>(Routes.StorageImport.Root + queryString);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/imports/addnew");
+    }
+
+    private string GetQuery(StorageImportSearchRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.ProductCode))
+            parameters.Add($"ProductCode={request.ProductCode}");
+        if (!string.IsNullOrWhiteSpace(request.ProductName))
+            parameters.Add($"ProductName={request.ProductName}");
+        if (request.ProductId.HasValue)
+            parameters.Add($"ProductId={request.ProductId}");
+        if (request.StorageWorkerId.HasValue)
+            parameters.Add($"StorageWorkerId={request.StorageWorkerId}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
+}

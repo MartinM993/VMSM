@@ -133,9 +133,7 @@ namespace VMSM.Api.Controllers
             try
             {
                 request.SetAudit(CurrentLoggedUserId);
-                _userManager.RemoveFromRoleAsync(dbUser, dbUser.UserRole.ToString());
                 var user = _userService.Update(request);
-                _userManager.AddToRoleAsync(user, request.UserRole.ToString());
                 _signInManager.RefreshSignInAsync(user);
                 actionResult.EntityId = user.Id;
             }
@@ -148,6 +146,22 @@ namespace VMSM.Api.Controllers
             }
 
             return Ok(actionResult);
+        }
+
+        [HttpPut]
+        [Route(Routes.User.ChangeRole)]
+        public IActionResult ChangeRole([FromBody] int id)
+        {
+            var user = _userService.GetById(id);
+            var isInRole = _userManager.IsInRoleAsync(user, user.UserRole.ToString()).Result;
+            if (!isInRole)
+            {
+                var q = _userManager.GetRolesAsync(user).Result;
+                var removeFromRolesResult = _userManager.RemoveFromRolesAsync(user, q).Result;
+                var eAddToRoleResult = _userManager.AddToRoleAsync(user, user.UserRole.ToString()).Result;
+            }
+            
+            return Ok();
         }
 
         [HttpDelete]

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Models;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
@@ -12,10 +13,12 @@ namespace VMSM.Api.Controllers
     public class StorageImportController : BaseController
     {
         private readonly IStorageImportService _storageImportService;
+        private readonly IProductService _productService;
 
-        public StorageImportController(IStorageImportService storageImportService, UserManager<AppUser> userManager) : base(userManager)
+        public StorageImportController(IStorageImportService storageImportService, IProductService productService, UserManager<AppUser> userManager) : base(userManager)
         {
             _storageImportService = storageImportService;
+            _productService = productService;
         }
 
         [HttpGet]
@@ -40,13 +43,41 @@ namespace VMSM.Api.Controllers
         [Route(Routes.StorageImport.Root)]
         public IActionResult Create([FromBody]StorageImport request)
         {
-            var storageImport = new StorageImport();
-            request.SetAudit(CurrentLoggedUserId);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Storage Import was successfull created!"
+            };
 
-            if (ModelState.IsValid)
-                storageImport = _storageImportService.Create(request);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var storageImport = _storageImportService.Create(request);
+                actionResult.EntityId = storageImport.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create storage import was unsuccessfully, please try again!";
 
-            return Ok(storageImport.Id);
+                return Ok(actionResult);
+            }
+
+            try
+            {
+                var product = _productService.GetById(request.ProductId);
+                product.StorageQuantity += request.Quantity;
+                _productService.Update(product);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create storage import was successfully, but Storage Quantity of the product was not updated properly, please contact Office worker!";
+
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
     }
 }

@@ -9,6 +9,7 @@
             public const string Root = ApiPrefix + "/users";
             public const string ById = Root + "/{id}";
             public const string CurrentLoggedUser = Root + "/currentloggeduser";
+            public const string ChangeRole = Root + "/changerole";
         }
 
         public static class Address
