@@ -74,7 +74,7 @@ namespace VMSM.Api.Controllers
             var actionResult = new CustomActionResult
             {
                 Successful = true,
-                Message = "Update address information was successfully!"
+                Message = "Update address informations was successfully!"
             };
 
             try
@@ -86,7 +86,7 @@ namespace VMSM.Api.Controllers
             catch
             {
                 actionResult.Successful = false;
-                actionResult.Message = "Update address information was unsuccessfully, please try again!";
+                actionResult.Message = "Update address informations was unsuccessfully, please try again!";
 
                 return Ok(actionResult);
             }

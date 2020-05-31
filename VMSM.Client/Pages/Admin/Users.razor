@@ -57,11 +57,18 @@
                             </RadzenGridColumn>
                             <RadzenGridColumn TItem="AppUser" Property="UserRole" Title="Role">
                                 <EditTemplate Context="user">
-                                    <RadzenDropDown @bind-Value="@user.UserRole" TextProperty="Text" ValueProperty="Value" Style="width:100%"
+                                    <RadzenDropDown @bind-Value="@user.UserRole" 
+                                                    TextProperty="Text" 
+                                                    ValueProperty="Value" 
+                                                    Style="width:100%"
                                                     Data="@(Enum.GetValues(typeof(Role)).Cast<Role>().Select(t => new { Text = $"{t}", Value = t }))" />
                                 </EditTemplate>
                                 <FilterTemplate>
-                                    <RadzenDropDown @bind-Value="@role" TextProperty="Text" ValueProperty="Value" Style="width:100%"
+                                    <RadzenDropDown @bind-Value="@role"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Style="width:100%"
+                                                    AllowClear="true"
                                                     Data="@(Enum.GetValues(typeof(Role)).Cast<Role>().Select(t => new { Text = $"{t}", Value = t }))" />
                                 </FilterTemplate>
                             </RadzenGridColumn>
@@ -142,14 +149,12 @@
 @code {
     IList<AppUser> appUsers;
     RadzenGrid<AppUser> userGrid;
-    List<Address> addresses = new List<Address>();
     Role? role = null;
     bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
         appUsers = await _http.GetJsonAsync<IList<AppUser>>(Routes.User.Root);
-        addresses = await _http.GetJsonAsync<List<Address>>(Routes.Address.Root);
 
         isLoading = false;
         StateHasChanged();
@@ -162,7 +167,7 @@
 
     void ChangeVehicleOrAddres()
     {
-        _navigationManager.NavigateTo("/users/changevehicleoraddres");
+        _navigationManager.NavigateTo("/users/changevehicleoraddress");
     }
 
     void EditRow(AppUser user)

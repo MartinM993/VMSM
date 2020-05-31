@@ -49,7 +49,7 @@
                         <RadzenRequiredValidator Text="Code is required!" Component="Code" Popup="true" />
                     </EditTemplate>
                 </RadzenGridColumn>
-                <RadzenGridColumn TItem="Vehicle" Context="editableUserGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                <RadzenGridColumn TItem="Vehicle" Context="editableGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
                     <Template Context="vehicle">
                         <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(vehicle))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
                     </Template>

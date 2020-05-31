@@ -11,7 +11,9 @@ namespace VMSM.Contracts.Entities
             VendingMachineSchedules = new List<VendingMachineSchedule>();
         }
 
+        [Required]
         public virtual string Name { get; set; }
+        [Required]
         public virtual string Model { get; set; }
         public virtual int ProductionYear { get; set; }
         [Required]

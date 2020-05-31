@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Models;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
@@ -22,9 +23,23 @@ namespace VMSM.Api.Controllers
         [Route(Routes.VendingMachine.ById)]
         public IActionResult GetById([FromRoute]int id)
         {
+            var actionResult = new CustomActionResultEntity<VendingMachine>
+            {
+                Successful = true
+            };
+
             var vendingMachine = _vendingMachineService.GetById(id);
 
-            return Ok(vendingMachine);
+            if (vendingMachine == null)
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Vending Machine do not exist!";
+
+                return Ok(actionResult);
+            }
+            actionResult.Entity = vendingMachine;
+
+            return Ok(actionResult);
         }
 
         [HttpGet]
@@ -40,32 +55,80 @@ namespace VMSM.Api.Controllers
         [Route(Routes.VendingMachine.Root)]
         public IActionResult Create([FromBody]VendingMachine request)
         {
-            var vendingMachine = new VendingMachine();
-            request.SetAudit(CurrentLoggedUserId);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Vending Machine was successfull created!"
+            };
 
-            if (ModelState.IsValid)
-                vendingMachine = _vendingMachineService.Create(request);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var vendingMachine = _vendingMachineService.Create(request);
+                actionResult.EntityId = vendingMachine.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create vending machine was unsuccessfully, please try again!";
 
-            return Ok(vendingMachine.Id);
+                return Ok(actionResult);
+            }          
+
+            return Ok(actionResult);
         }
 
         [HttpPut]
         [Route(Routes.VendingMachine.ById)]
         public IActionResult Update([FromRoute]int id, [FromBody]VendingMachine request)
         {
-            request.SetAudit(CurrentLoggedUserId);
-            var vendingMachine = _vendingMachineService.Update(request);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Update vending machine informations was successfully!"
+            };
 
-            return Ok(vendingMachine.Id);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var vendingMachine = _vendingMachineService.Update(request);
+                actionResult.EntityId = vendingMachine.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Update vending machine informations was unsuccessfully, please try again!";
+
+                return Ok(actionResult);
+            }          
+
+            return Ok(actionResult);
         }
 
         [HttpDelete]
         [Route(Routes.VendingMachine.ById)]
         public IActionResult Delete([FromRoute]int id)
         {
-            _vendingMachineService.Delete(id);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Delete vending machine was successfull!"
+            };
 
-            return Ok();
+            try
+            {
+                _vendingMachineService.Delete(id);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Delete vending machine action failed, please try again!";
+
+                return Ok(actionResult);
+            }
+            
+
+            return Ok(actionResult);
         }
     }
 }

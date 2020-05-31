@@ -1,0 +1,250 @@
+﻿@page "/vendingmachines"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Vending Machines">
+                    <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Vending Machine
+                    </RadzenButton>
+                    <RadzenButton Click="((args) => ChangeAddres())" ButtonStyle="ButtonStyle.Success" Text="Change Vending Machine Address" class="magin-bottom-15">
+                        <span class="oi oi-pencil" aria-hidden="true"></span> Change Vending Machine Address
+                    </RadzenButton>
+                    <RadzenGrid @ref="grid"
+                                Data="@(vendingMachineCategory == null ?
+                            vendingMachines.Where(x => x.IsActive == isActive) :
+                            vendingMachines.Where(x => x.Category == vendingMachineCategory && x.IsActive == isActive))"
+                                TItem="VendingMachine"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                RowUpdate="@OnUpdateRow">
+                        <Columns>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Name">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenTextBox @bind-Value="@vendingMachine.Name" Name="Name" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Name is required!" Component="Name" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Model" Title="Model">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenTextBox @bind-Value="@vendingMachine.Model" Name="Model" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Model is required!" Component="Model" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Code" Title="Code" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenTextBox @bind-Value="@vendingMachine.Code" Name="Code" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Code is required!" Component="Code" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Category" Title="Category">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenDropDown @bind-Value="@vendingMachine.Category"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Style="width:100%"
+                                                    AllowClear="true"
+                                                    Data="@(Enum.GetValues(typeof(VendingMachineCategory)).Cast<VendingMachineCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                                </EditTemplate>
+                                <FilterTemplate>
+                                    <RadzenDropDown @bind-Value="@vendingMachineCategory"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Style="width:100%"
+                                                    AllowClear="true"
+                                                    Data="@(Enum.GetValues(typeof(VendingMachineCategory)).Cast<VendingMachineCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                                </FilterTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="IsActive" Title="IsActive" Width="75px">
+                                <FilterTemplate>
+                                    <RadzenCheckBox @bind-Value="@isActive" TValue="bool" />
+                                </FilterTemplate>
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenCheckBox @bind-Value="@vendingMachine.IsActive" TValue="bool" Name="IsActive" Change="@(args => IsActiveChange(vendingMachine.IsActive))" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="ProductionYear" Title="ProductionYear" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenNumeric TValue="int" Min="1900" Max="3000" @bind-Value="@vendingMachine.ProductionYear" Name="ProductionYear" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="MachineCost" Title="Machine Cost" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenNumeric TValue="int" Min="0" @bind-Value="@vendingMachine.MachineCost" Name="MachineCost" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Income" Title="Income" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenNumeric TValue="int" Min="0" @bind-Value="@vendingMachine.Income" Name="Income" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="NumberOfDefects" Title="# Defects" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenNumeric TValue="int" Min="0" @bind-Value="@vendingMachine.NumberOfDefects" Name="NumberOfDefects" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="CostOfDefects" Title="Cost Of Defects" Width="100px">
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenNumeric TValue="int" Min="0" @bind-Value="@vendingMachine.CostOfDefects" Name="CostOfDefects" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Context="editableGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                                <Template Context="vendingMachine">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(vendingMachine))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                </Template>
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(vendingMachine))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(vendingMachine))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Context="user" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+                                <Template Context="vendingMachine">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vendingMachine))">
+                                    </RadzenButton>
+                                </Template>
+                                <EditTemplate Context="vendingMachine">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vendingMachine))">
+                                    </RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Address Informations">
+                    <RadzenGrid @ref="grid"
+                                Data="@vendingMachines"
+                                TItem="VendingMachine"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10">
+                        <Columns>
+                            <RadzenGridColumn TItem="VendingMachine" Property="LastName" Title="User">
+                                <Template Context="vendingMachine">
+                                    @vendingMachine.Name: @vendingMachine.Model - @vendingMachine.Code
+                                </Template>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Address.Town" Title="Town"></RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Address.ZipCode" Title="Zip Code"></RadzenGridColumn>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Address.Line1" Title="Address">
+                                <Template Context="user">
+                                    @user.Address.Line1 @user.Address.Line2
+                                </Template>
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<VendingMachine> vendingMachines;
+    RadzenGrid<VendingMachine> grid;
+    VendingMachineCategory? vendingMachineCategory = null;
+    bool isActive = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/vendingmachines/addnew");
+    }
+
+    async Task OnUpdateRow(VendingMachine vendingMachine)
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create vending machine:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.VendingMachine.ById.Replace("{id}", vendingMachine.Id.ToString()), vendingMachine);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+        StateHasChanged();
+    }
+
+    void EditRow(VendingMachine vendingMachine)
+    {
+        grid.EditRow(vendingMachine);
+    }
+
+    void SaveRow(VendingMachine vendingMachine)
+    {
+        grid.UpdateRow(vendingMachine);
+    }
+
+    void CancelEdit(VendingMachine vendingMachine)
+    {
+        grid.CancelEditRow(vendingMachine);
+    }
+
+    async Task DeleteRow(VendingMachine vendingMachine)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{vendingMachine.Name}: {vendingMachine.Model} {vendingMachine.Code} will be deleted, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Delete vending machine:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Delete, Routes.VendingMachine.ById.Replace("{id}", vendingMachine.Id.ToString()), vendingMachine);
+
+            notificationMessage.Detail = actionResult.Message;
+            vendingMachines.Remove(vendingMachine);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        grid.Reload();
+    }
+
+    private void IsActiveChange(bool isActiveChange)
+    {
+        isActive = isActiveChange;
+    }
+
+    private void ChangeAddres()
+    {
+        _navigationManager.NavigateTo("/vendingmachines/changeaddress");
+    }
+}

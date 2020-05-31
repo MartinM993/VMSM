@@ -1,0 +1,164 @@
+﻿@page "/vendingmachines/changeaddress"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.Admin))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="request" OnValidSubmit="@UpdateVendingMachine" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <p class="text-center h3-style">Change Vending Machine Address</p>
+                        <div class="row form-group">
+                            <div class="col-3 text-right">
+                                <label class="magin-top-5">User:</label>
+                            </div>
+                            <div class="col-9">
+                                <RadzenDropDown @bind-Value="@request.EntityId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowClear="true"
+                                                Placeholder="Select vending machine.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Name="test"
+                                                Data="@(vendingMachines.Select(x => new { Text = $"{x.Name}: {x.Model} {x.Model} - {x.Code}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => request.EntityId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-3 text-right">
+                                <label class="magin-top-5">Address:</label>
+                            </div>
+                            <div class="col-9">
+                                <RadzenDropDown @bind-Value="@request.AddressId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowClear="true"
+                                                Placeholder="Select address.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Data="@(addresses.Select(x => new { Text = $"{x.Town} - {x.Line1}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => request.AddressId)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Save" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                    <div class="row magin-top-15">
+                        <RadzenGrid Data="@vendingMachines.Where(x => x.Id == request.EntityId)"
+                                    TItem="VendingMachine">
+                            <Columns>
+                                <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Information for selected vending machine">
+                                    <Template Context="vendingMachine">
+                                        @vendingMachine.Name: @vendingMachine.Model - @vendingMachine.Code
+                                    </Template>
+                                </RadzenGridColumn>
+                                <RadzenGridColumn TItem="VendingMachine" Property="Address.Line1" Title="Address information for selected vending machine">
+                                    <Template Context="vendingMachine">
+                                        @vendingMachine.Address.Town - @vendingMachine.Address.Line1 @vendingMachine.Address.Line2
+                                    </Template>
+                                </RadzenGridColumn>
+                            </Columns>
+                        </RadzenGrid>
+                    </div>
+                    <div class="row magin-top-15">
+                        <RadzenGrid Data="@addresses.Where(x => x.Id == request.AddressId)"
+                                    TItem="Address">
+                            <Columns>
+                                <RadzenGridColumn TItem="Address" Property="Town" Title="Town"></RadzenGridColumn>
+                                <RadzenGridColumn TItem="Address" Property="ZipCode" Title="Zip Code"></RadzenGridColumn>
+                                <RadzenGridColumn TItem="Address" Property="Line1" Title="Address">
+                                    <Template Context="address">
+                                        @address.Line1 @address.Line2
+                                    </Template>
+                                </RadzenGridColumn>
+                            </Columns>
+                        </RadzenGrid>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    ChangeVehicleOrAddress request = new ChangeVehicleOrAddress();
+    IList<Address> addresses;
+    IList<VendingMachine> vendingMachines;
+    CustomActionResult actionResultPut;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+        addresses = await _http.GetJsonAsync<IList<Address>>(Routes.Address.Root);
+
+        isLoading = false;
+    }
+
+    async Task UpdateVendingMachine()
+    {
+        var actionResultGet = await _http.GetJsonAsync<CustomActionResultEntity<VendingMachine>>(Routes.VendingMachine.ById.Replace("{id}", request.EntityId.ToString()));
+
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Update Vending Machine Address:",
+            Duration = 4000,
+            Detail = actionResultGet.Message
+        };
+
+        if (actionResultGet.Successful)
+        {
+            var appUser = actionResultGet.Entity;
+
+            if (request.AddressId > 0)
+            {
+                appUser.AddressId = request.AddressId;
+            }
+
+            actionResultPut = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.VendingMachine.ById.Replace("{id}", request.EntityId.ToString()), appUser);
+            notificationMessage.Detail = actionResultPut.Message;
+
+            if (!actionResultPut.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+            else
+            {
+                notificationMessage.Severity = NotificationSeverity.Success;
+                _notificationService.Notify(notificationMessage);
+                _navigationManager.NavigateTo("/vendingmachines");
+            }
+        }
+        else
+        {
+
+            notificationMessage.Severity = NotificationSeverity.Error;
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/vendingmachines");
+    }
+}

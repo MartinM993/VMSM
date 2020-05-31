@@ -48,7 +48,7 @@
                         <RadzenTextBox @bind-Value="address.Line2" Name="Line2" Style="width:100%; display: block"/>
                     </EditTemplate>
                 </RadzenGridColumn>
-                <RadzenGridColumn TItem="Address" Context="editableUserGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                <RadzenGridColumn TItem="Address" Context="editableGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
                     <Template Context="address">
                         <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(address))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
                     </Template>
