@@ -26,7 +26,7 @@ namespace VMSM.Services
         {
             var storageExports = _repository.GetAll();
 
-            if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
+            if (!string.IsNullOrWhiteSpace(request.FieldWorkerName))
                 storageExports = storageExports.Where(x => x.FieldWorker.Name.ToLower().Contains(request.FieldWorkerLastName.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
@@ -40,6 +40,9 @@ namespace VMSM.Services
 
             if (request.FieldWorkerId.HasValue)
                 storageExports = storageExports.Where(x => x.FieldWorkerId == request.FieldWorkerId);
+
+            if (request.StorageWorkerId.HasValue)
+                storageExports = storageExports.Where(x => x.CreatedBy == request.StorageWorkerId);
 
             if (request.ProductId.HasValue)
                 storageExports = storageExports.Where(x => x.ProductId == request.ProductId);

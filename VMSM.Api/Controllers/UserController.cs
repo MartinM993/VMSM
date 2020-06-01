@@ -158,7 +158,7 @@ namespace VMSM.Api.Controllers
             {
                 var q = _userManager.GetRolesAsync(user).Result;
                 var removeFromRolesResult = _userManager.RemoveFromRolesAsync(user, q).Result;
-                var eAddToRoleResult = _userManager.AddToRoleAsync(user, user.UserRole.ToString()).Result;
+                var addToRoleResult = _userManager.AddToRoleAsync(user, user.UserRole.ToString()).Result;
             }
             
             return Ok();
