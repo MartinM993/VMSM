@@ -10,13 +10,17 @@ namespace VMSM.Contracts.Entities
         public virtual string Code { get; set; }
         public virtual ProductCategory Category { get; set; }
         [Required]
+        [Range(1, 100000, ErrorMessage = "Quantity value should be between 0 and 100000")]
         public virtual decimal PurchasePrice { get; set; }
         public virtual decimal PreviousPurchasePrice { get; set; }
         [Required]
+        [Range(1, 100, ErrorMessage = "Quantity value should be between 0% and 100%")]
         public virtual decimal Tax { get; set; }
         [Required]
+        [Range(1, 100, ErrorMessage = "Quantity value should be between 0% and 100%")]
         public virtual decimal Rebate { get; set; }
         [Required]
+        [Range(1, 100, ErrorMessage = "Quantity value should be between 0% and 100%")]
         public virtual decimal Profit { get; set; }
         public virtual int SellingPrice
         {
@@ -30,10 +34,12 @@ namespace VMSM.Contracts.Entities
         }
 
         [Required]
+        [Range(1, 100000, ErrorMessage = "Quantity value should be at least 1")]
         public virtual int Quantity { get; set; }
         public virtual int StorageQuantity { get; set; }
         public virtual int Weight { get; set; }
         [Required]
+        [Range(1, 100000, ErrorMessage = "Selling Pieces value should be at least 1")]
         public virtual int SellingPieces { get; set; }
         public virtual int PriceByPiece
         {

@@ -1,0 +1,163 @@
+﻿@page "/editproducts/addnew"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@product" OnValidSubmit="CreateProduct" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <h3 class="text-center h3-style">Create new product</h3>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Name:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@product.Name" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Code:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenTextBox @bind-Value="@product.Code" />
+                                <ValidationMessage For="@(() => product.Code)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Category:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@product.Category" TextProperty="Text" ValueProperty="Value"
+                                                Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(x => new { Text = $"{x}", Value = x }))" />
+                                <ValidationMessage For="@(() => product.Category)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Purchase Price:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="decimal" Min="0" @bind-Value="@product.PurchasePrice" />
+                                <ValidationMessage For="@(() => product.PurchasePrice)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Tax:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Tax" />%
+                                <ValidationMessage For="@(() => product.Tax)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Profit:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Profit" />%
+                                <ValidationMessage For="@(() => product.Profit)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Rebate:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Rebate" />%
+                                <ValidationMessage For="@(() => product.Rebate)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Quantity:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="int" Min="1" @bind-Value="@product.Quantity" />
+                                <ValidationMessage For="@(() => product.Quantity)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Weight:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="int" Min="1" @bind-Value="@product.Weight" />g
+                                <ValidationMessage For="@(() => product.Weight)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">SellingPieces:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric TValue="int" Min="1" @bind-Value="@product.SellingPieces" />
+                                <ValidationMessage For="@(() => product.SellingPieces)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Create" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    Product product = new Product();
+    bool isLoading = true;
+
+    protected override void OnInitialized()
+    {
+        isLoading = false;
+    }
+
+    async Task CreateProduct()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create product:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.Product.Root, product);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/editproducts");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/editproducts");
+    }
+}

@@ -1,0 +1,287 @@
+﻿@page "/editproducts"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Basic Informations">
+                    <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Product
+                    </RadzenButton>
+                    <RadzenGrid @ref="grid"
+                                Data="@(productCategory == null ? products : products.Where(x => x.Category == productCategory))"
+                                TItem="Product"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                RowUpdate="@OnUpdateRow">
+                        <Columns>
+                            <RadzenGridColumn TItem="Product" Property="Name" Title="Name">
+                                <EditTemplate Context="product">
+                                    <RadzenTextBox @bind-Value="@product.Name" Name="Name" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Code" Title="Code">
+                                <EditTemplate Context="product">
+                                    <RadzenTextBox @bind-Value="@product.Code" Name="Code" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Code is required!" Component="Code" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Category" Title="Category">
+                                <EditTemplate Context="product">
+                                    <RadzenDropDown @bind-Value="@product.Category"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Style="width:100%"
+                                                    Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                                </EditTemplate>
+                                <FilterTemplate>
+                                    <RadzenDropDown @bind-Value="@productCategory"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Style="width:100%"
+                                                    AllowClear="true"
+                                                    Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+                                </FilterTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="SellingPrice" Title="Selling Price" />
+                            <RadzenGridColumn TItem="Product" Context="editableProductGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                                <Template Context="product">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(product))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(product))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(product))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Context="product" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
+                                <Template Context="product">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(product))">
+                                    </RadzenButton>
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(product))">
+                                    </RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Prices">
+                    <RadzenGrid @ref="grid"
+                                Data="@products"
+                                TItem="Product"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                RowUpdate="@OnUpdateRow">
+                        <Columns>
+                            <RadzenGridColumn TItem="Product" Property="Code" Title="Product">
+                                <Template Context="product">
+                                    @product.Name: @product.Code
+                                </Template>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Tax" Title="Tax">
+                                <Template Context="product">
+                                    @product.Tax %
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Tax" Name="Tax" Style="width:100%; display: block" />
+                                    <RadzenNumericRangeValidator Component="Tax" Min="0" Max="100" Text="Tax value should be between 0% and 100%" Popup="true" />
+                                    <RadzenRequiredValidator Text="Tax is required!" Component="Tax" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Rebate" Title="Rebate">
+                                <Template Context="product">
+                                    @product.Rebate %
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Rebate" Name="Rebate" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Rebate is required!" Component="Rebate" Popup="true" />
+                                    <RadzenNumericRangeValidator Component="Rebate" Min="0" Max="100" Text="Rebate value should be between 0% and 100%" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Profit" Title="Profit">
+                                <Template Context="product">
+                                    @product.Profit %
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="decimal" Min="0" Max="100" @bind-Value="@product.Profit" Name="Profit" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Profit is required!" Component="Profit" Popup="true" />
+                                    <RadzenNumericRangeValidator Component="Profit" Min="0" Max="100" Text="Profit value should be between 0% and 100%" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="PurchasePrice" Title="Purchase Price">
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="decimal" Min="0" @bind-Value="@product.PurchasePrice" Name="PurchasePrice" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="PurchasePrice is required!" Component="PurchasePrice" Popup="true" />
+                                    <RadzenNumericRangeValidator Component="PurchasePrice" Min="0" Text="Purchase Price value can not be lower than 0" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="PreviousPurchasePrice" Title="Previous Purchase Price" />
+                            <RadzenGridColumn TItem="Product" Property="SellingPrice" Title="Selling Price" />
+                            <RadzenGridColumn TItem="Product" Property="PriceByPiece" Title="Price By Piece" />
+                            <RadzenGridColumn TItem="Product" Context="editableProductGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                                <Template Context="product">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(product))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(product))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(product))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Quantities">
+                    <RadzenGrid @ref="grid"
+                                Data="@products"
+                                TItem="Product"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                RowUpdate="@OnUpdateRow">
+                        <Columns>
+                            <RadzenGridColumn TItem="Product" Property="Code" Title="Product">
+                                <Template Context="product">
+                                    @product.Name: @product.Code
+                                </Template>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="StorageQuantity" Title="Storage Quantity" />
+                            <RadzenGridColumn TItem="Product" Property="Quantity" Title="Quantity">
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="int" Min="@product.Quantity" @bind-Value="@product.Quantity" Name="Quantity" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="Quantity is required!" Component="Quantity" Popup="true" />
+                                    <RadzenNumericRangeValidator Component="Quantity" Min="@product.Quantity" Text="Quantity value can not be lower than Quantity values in data base" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="SellingPieces" Title="Selling Pieces">
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="int" Min="1" @bind-Value="@product.SellingPieces" Name="SellingPieces" Style="width:100%; display: block" />
+                                    <RadzenRequiredValidator Text="SellingPieces is required!" Component="SellingPieces" Popup="true" />
+                                    <RadzenNumericRangeValidator Component="SellingPieces" Min="1" Text="Selling Pieces value can not be lower than 1" Popup="true" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Property="Weight" Title="Weight">
+                                <Template Context="product">
+                                   @product.Weight g
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenNumeric TValue="int" Min="1" @bind-Value="@product.Weight" Name="Weight" Style="width:100%; display: block" />
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                            <RadzenGridColumn TItem="Product" Context="editableProductGrid" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                                <Template Context="product">
+                                    <RadzenButton Icon="edit" Size="ButtonSize.Medium" Click="@(args => EditRow(product))" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                </Template>
+                                <EditTemplate Context="product">
+                                    <RadzenButton Icon="save" Size="ButtonSize.Medium" Click="@(args => SaveRow(product))" ButtonStyle="ButtonStyle.Success"></RadzenButton>
+                                    <RadzenButton Icon="cancel" Size="ButtonSize.Medium" Click="@(args => CancelEdit(product))" ButtonStyle="ButtonStyle.Danger"></RadzenButton>
+                                </EditTemplate>
+                            </RadzenGridColumn>
+                        </Columns>
+                    </RadzenGrid>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Product> products;
+    RadzenGrid<Product> grid;
+    ProductCategory? productCategory = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _http.GetJsonAsync<IList<Product>>(Routes.Product.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/editproducts/addnew");
+    }
+
+    void EditRow(Product product)
+    {
+        grid.EditRow(product);
+    }
+
+    async Task OnUpdateRow(Product product)
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Update product information:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Product.ById.Replace("{id}", product.Id.ToString()), product);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (!actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Error;
+        }
+
+        _notificationService.Notify(notificationMessage);
+        StateHasChanged();
+    }
+
+    void SaveRow(Product product)
+    {
+        grid.UpdateRow(product);
+    }
+
+    void CancelEdit(Product product)
+    {
+        grid.CancelEditRow(product);
+    }
+
+    async Task DeleteRow(Product product)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{product.Name}: {product.Code} will be deleted, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Delete product:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Delete, Routes.Product.ById.Replace("{id}", product.Id.ToString()), product);
+            notificationMessage.Detail = actionResult.Message;
+            products.Remove(product);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        grid.Reload();
+    }
+}

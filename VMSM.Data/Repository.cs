@@ -46,6 +46,7 @@ namespace VMSM.Data
             else
             {
                 var dbEntity = _context.Set<TEntity>().Attach(entity).Entity;
+                _context.Entry(entity).State = EntityState.Modified;
                 return dbEntity;
             }
         }
