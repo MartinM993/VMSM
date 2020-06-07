@@ -8,5 +8,6 @@ namespace VMSM.Contracts.Interfaces
         VendingMachineProduct GetById(int id);
         IEnumerable<VendingMachineProduct> GetAll();
         VendingMachineProduct Create(VendingMachineProduct request);
+        void Delete(int id);
     }
 }

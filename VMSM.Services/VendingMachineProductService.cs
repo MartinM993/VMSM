@@ -34,5 +34,11 @@ namespace VMSM.Services
 
             return defect;
         }
+
+        public void Delete(int id)
+        {
+            _repository.Delete(id);
+            _repository.Save();
+        }
     }
 }

@@ -1,0 +1,154 @@
+﻿@page "/vendingmachineproducts/addnewproductsprice"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@productPrice" OnValidSubmit="CreateProduct" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <p class="text-center h3-style">Add Product for Vending Machine</p>
+                        <div class="row form-group">
+                            <div class="col-3 text-right">
+                                <label class="magin-top-5">Vending Machine:</label>
+                            </div>
+                            <div class="col-9">
+                                <RadzenDropDown @bind-Value="@productPrice.VendingMachineId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowClear="true"
+                                                Placeholder="Select user.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Name="test"
+                                                Data="@(vendingMachines.Select(x => new { Text = $"{x.Name} {x.Model} with code: {x.Code}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => productPrice.VendingMachineId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-3 text-right">
+                                <label class="magin-top-5">Product:</label>
+                            </div>
+                            <div class="col-9">
+                                <RadzenDropDown @bind-Value="@productPrice.ProductId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowClear="true"
+                                                Placeholder="Select user.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Name="test"
+                                                Data="@(products.Select(x => new { Text = $"{x.Name} with code: {x.Code}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => productPrice.ProductId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-3 text-right">
+                                <label class="magin-top-5">Price:</label>
+                            </div>
+                            <div class="col-9">
+                                <RadzenNumeric TValue="int" Min="0" Max="100000" @bind-Value="@productPrice.Price" Name="Price" />
+                                <ValidationMessage For="@(() => productPrice.Price)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Save" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+            <div class="row magin-top-15">
+                <RadzenGrid Data="@vendingMachines.Where(x => x.Id == productPrice.VendingMachineId)"
+                            TItem="VendingMachine">
+                    <Columns>
+                        <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Vending Machine Name" />
+                        <RadzenGridColumn TItem="VendingMachine" Property="Model" Title="Model" />
+                        <RadzenGridColumn TItem="VendingMachine" Property="Code" Title="Code" />
+                        <RadzenGridColumn TItem="VendingMachine" Property="Category" Title="Category" />
+                        <RadzenGridColumn TItem="VendingMachine" Property="Address.Town">
+                            <Template Context="address">
+                                @address.Address.Town (@address.Address.ZipCode): @address.Address.Line1
+                            </Template>
+                        </RadzenGridColumn>
+                    </Columns>
+                </RadzenGrid>
+            </div>
+            <div class="row magin-top-15">
+                <RadzenGrid Data="@products.Where(x => x.Id == productPrice.ProductId)"
+                            TItem="Product">
+                    <Columns>
+                        <RadzenGridColumn TItem="Product" Property="Name" Title="Product Name" />
+                        <RadzenGridColumn TItem="Product" Property="Code" Title="Code" />
+                        <RadzenGridColumn TItem="Product" Property="SellingPrice" Title="SellingPrice" />
+                        <RadzenGridColumn TItem="Product" Property="SellingPieces" Title="SellingPieces" />
+                        <RadzenGridColumn TItem="Product" Property="PriceByPiece" Title="PriceByPiece" />
+                    </Columns>
+                </RadzenGrid>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<VendingMachine> vendingMachines;
+    IList<Product> products;
+    VendingMachineProductPrice productPrice = new VendingMachineProductPrice();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await _http.GetJsonAsync<IList<Product>>(Routes.Product.Root);
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    async Task CreateProduct()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create vending machine product price:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.VendingMachineProductPrice.Root, productPrice);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/vendingmachineproducts");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/vendingmachineproducts");
+    }
+}
