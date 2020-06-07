@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Models;
 using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
@@ -12,10 +13,12 @@ namespace VMSM.Api.Controllers
     public class IncomeController : BaseController
     {
         private readonly IIncomeService _incomeService;
+        private readonly IVendingMachineService _vendingMachineService;
 
-        public IncomeController(IIncomeService incomeService, UserManager<AppUser> userManager) : base(userManager)
+        public IncomeController(IIncomeService incomeService, IVendingMachineService vendingMachineService, UserManager<AppUser> userManager) : base(userManager)
         {
             _incomeService = incomeService;
+            _vendingMachineService = vendingMachineService;
         }
 
         [HttpGet]
@@ -40,13 +43,41 @@ namespace VMSM.Api.Controllers
         [Route(Routes.Income.Root)]
         public IActionResult Create([FromBody]Income request)
         {
-            var income = new Income();
-            request.SetAudit(CurrentLoggedUserId);
+            var actionResult = new CustomActionResult
+            {
+                Successful = true,
+                Message = "Income was successfull created!"
+            };          
 
-            if (ModelState.IsValid)
-                income = _incomeService.Create(request);
+            try
+            {
+                request.SetAudit(CurrentLoggedUserId);
+                var income = _incomeService.Create(request);
+                actionResult.EntityId = income.Id;
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create income was unsuccessfully, please try again!";
 
-            return Ok(income.Id);
+                return Ok(actionResult);
+            }
+
+            try
+            {
+                var vendingMachine = _vendingMachineService.GetById(request.VendingMachineId);
+                vendingMachine.Income += request.CollectedIncome;
+                _vendingMachineService.Update(vendingMachine);
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create income was successfully, but Income value for the vending machine was not updated properly, please contact the admin!";
+
+                return Ok(actionResult);
+            }
+
+            return Ok(actionResult);
         }
     }
 }

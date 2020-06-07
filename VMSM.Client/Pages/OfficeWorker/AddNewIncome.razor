@@ -1,0 +1,103 @@
+﻿@page "/incomes/addnew"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@income" OnValidSubmit="CreateIncome" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <h3 class="text-center h3-style">Create new income</h3>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Vending Machine:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@income.VendingMachineId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowClear="true"
+                                                Placeholder="Select user.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Data="@(vendingMachines.Select(x => new { Text = $"{x.Name} {x.Model} with code: {x.Code}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => income.VendingMachineId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Collected Income:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenNumeric Min="0" @bind-Value="@income.CollectedIncome" />
+                                <ValidationMessage For="@(() => income.CollectedIncome)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Create" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    Income income = new Income();
+    IList<VendingMachine> vendingMachines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+    }
+
+    async Task CreateIncome()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Create income:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Post, Routes.Income.Root, income);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/incomes");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/incomes");
+    }
+}

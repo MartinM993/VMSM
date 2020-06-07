@@ -31,7 +31,6 @@
                                                 FilterOperator="StringFilterOperator.Contains"
                                                 AllowFiltering="true"
                                                 Style="width: 90%"
-                                                Name="test"
                                                 Data="@(vendingMachines.Select(x => new { Text = $"{x.Name} {x.Model} with code: {x.Code}", Value = x.Id }))" />
                                 <ValidationMessage For="@(() => product.VendingMachineId)" />
                             </div>

@@ -1,0 +1,75 @@
+﻿@page "/incomes"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Income
+                    </RadzenButton>
+                </div>
+                <div class="col-8">
+                    <RadzenDropDown @bind-Value="vendingMachineId"
+                                    Data="@(vendingMachines.Select(x => new { Text = $"{x.Name} {x.Model} with code: {x.Code}", Value = x.Id }))"
+                                    TextProperty="Text"
+                                    ValueProperty="Value"
+                                    AllowClear="true"
+                                    Placeholder="Select user.."
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    FilterOperator="StringFilterOperator.Contains"
+                                    AllowFiltering="true"
+                                    Style="width: 100%" />
+                </div>
+            </div>
+        </div>
+        <RadzenGrid @ref="grid"
+                    Data="@incomes.Where(x => x.VendingMachineId == vendingMachineId)"
+                    TItem="Income"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10">
+            <Columns>
+                <RadzenGridColumn TItem="Income" Property="VendingMachine.Name" Title="Name" />
+                <RadzenGridColumn TItem="Income" Property="VendingMachine.Model" Title="Model" />
+                <RadzenGridColumn TItem="Income" Property="VendingMachine.Code" Title="Code" />
+                <RadzenGridColumn TItem="Income" Property="VendingMachine.Income" Title="Total Income" />
+                <RadzenGridColumn TItem="Income" Property="CollectedIncome" Title="Collected Income" />
+                <RadzenGridColumn TItem="Income" Property="DateCreated" Title="Date" />
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Income> incomes;
+    IList<VendingMachine> vendingMachines;
+    int vendingMachineId;
+    RadzenGrid<Income> grid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        incomes = await _http.GetJsonAsync<IList<Income>>(Routes.Income.Root);
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/incomes/addnew");
+    }
+}
