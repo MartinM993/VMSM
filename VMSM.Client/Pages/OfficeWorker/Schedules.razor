@@ -1,0 +1,12 @@
+﻿@page "/schedules"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<h3>Schedules</h3>
+
+@code {
+
+}

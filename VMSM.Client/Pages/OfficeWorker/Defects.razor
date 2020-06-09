@@ -1,4 +1,4 @@
-﻿@page "/incomes"
+﻿@page "/defects"
 @inject HttpClient _http
 @inject NavigationManager _navigationManager
 @inject NotificationService _notificationService
@@ -15,12 +15,12 @@
             <div class="row">
                 <div class="col-4">
                     <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Income
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Defect
                     </RadzenButton>
                 </div>
             </div>
             <div class="row">
-                <div class="col-8">
+                <div class="col-7">
                     <RadzenGrid @ref="gridVendingMachine"
                                 Data="@vendingMachines"
                                 TItem="VendingMachine"
@@ -35,42 +35,45 @@
                             <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Name" />
                             <RadzenGridColumn TItem="VendingMachine" Property="Model" Title="Model" />
                             <RadzenGridColumn TItem="VendingMachine" Property="Code" Title="Code" />
-                            <RadzenGridColumn TItem="VendingMachine" Property="Income" Title="Total Income" />
+                            <RadzenGridColumn TItem="VendingMachine" Property="NumberOfDefects" Title="# Defects" />
+                            <RadzenGridColumn TItem="VendingMachine" Property="CostOfDefects" Title="Cost Of Defects" />
                         </Columns>
                     </RadzenGrid>
                 </div>
-                <div class="col-4">
-                    <RadzenGrid @ref="gridIncome"
-                                Data="@incomes.Where(x => x.VendingMachineId == vendingMachine.Id)"
-                                TItem="Income"
+                <div class="col-5">
+                    <RadzenGrid @ref="gridDefect"
+                                Data="@defects.Where(x => x.VendingMachineId == vendingMachine.Id)"
+                                TItem="Defect"
                                 AllowFiltering="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 AllowSorting="true"
                                 AllowPaging="true"
                                 PageSize="10">
                         <Columns>
-                            <RadzenGridColumn TItem="Income" Property="CollectedIncome" Title="Collected Income" />
-                            <RadzenGridColumn TItem="Income" Property="DateCreated" Title="Date" />
-                        </Columns>
+                            <RadzenGridColumn TItem="Defect" Property="Cost" Title="Cost" />
+                            <RadzenGridColumn TItem="Defect" Property="Description" Title="Description" />
+                            <RadzenGridColumn TItem="Defect" Property="DateCreated" Title="Date" />
+                        </Columns>        
                     </RadzenGrid>
                 </div>
             </div>
         </div>
-        
+
     </ContentTemplate>
 </SpinLoader>
 
 @code {
     bool isLoading = true;
-    IList<Income> incomes;
+    IList<Defect> defects;
     IList<VendingMachine> vendingMachines;
-    RadzenGrid<Income> gridIncome;
+    int vendingMachineId;
     RadzenGrid<VendingMachine> gridVendingMachine;
+    RadzenGrid<Defect> gridDefect;
     VendingMachine vendingMachine;
 
     protected override async Task OnInitializedAsync()
     {
-        incomes = await _http.GetJsonAsync<IList<Income>>(Routes.Income.Root);
+        defects = await _http.GetJsonAsync<IList<Defect>>(Routes.Defect.Root);
         vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
 
         vendingMachine = vendingMachines.FirstOrDefault();
@@ -80,6 +83,6 @@
 
     void AddNew()
     {
-        _navigationManager.NavigateTo("/incomes/addnew");
+        _navigationManager.NavigateTo("/defects/addnew");
     }
 }
