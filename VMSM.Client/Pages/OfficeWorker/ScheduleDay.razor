@@ -1,0 +1,62 @@
+﻿@inject HttpClient _http
+@inject NotificationService _notificationService
+@inject IJSRuntime _jsRuntime
+
+<RadzenGrid @ref="gridSchedule"
+            Data="@Schedules"
+            TItem="VendingMachineSchedule"
+            AllowFiltering="true"
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+            AllowSorting="true"
+            AllowPaging="true"
+            PageSize="10">
+    <Columns>
+        <RadzenGridColumn TItem="VendingMachineSchedule" Property="VendingMachine.Name" Title="Name" Width="100px" />
+        <RadzenGridColumn TItem="VendingMachineSchedule" Property="VendingMachine.Model" Title="Model" Width="100px" />
+        <RadzenGridColumn TItem="VendingMachineSchedule" Property="VendingMachine.Code" Title="Code" Width="75px" />
+        <RadzenGridColumn TItem="VendingMachineSchedule" Property="VendingMachine.Category" Title="Category" Width="100px" />
+        <RadzenGridColumn TItem="VendingMachineSchedule" Property="VendingMachine.Address.Line1" Title="Address">
+            <Template Context="vendingMachineSchedule">
+                @vendingMachineSchedule.VendingMachine.Address.Town (@vendingMachineSchedule.VendingMachine.Address.ZipCode): @vendingMachineSchedule.VendingMachine.Address.Line1 @vendingMachineSchedule.VendingMachine.Address.Line2
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="VendingMachineSchedule" Context="vendingMachineSchedule" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="75px">
+            <Template Context="vendingMachineSchedule">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vendingMachineSchedule))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+@code {
+    [Parameter] public IList<VendingMachineSchedule> Schedules { get; set; }
+    RadzenGrid<VendingMachineSchedule> gridSchedule;
+
+    async Task DeleteRow(VendingMachineSchedule schedule)
+    {
+        bool confirmed = await _jsRuntime.InvokeAsync<bool>("confirm", $"{schedule.VendingMachine.Name} with code: {schedule.VendingMachine.Code} will be removed from this Schedule, are you sure?");
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Remove vending machine from schedule:",
+            Severity = NotificationSeverity.Success,
+            Duration = 4000
+        };
+
+        if (confirmed)
+        {
+            var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Schedule.RemoveVM.Replace("{id}", schedule.ScheduleId.ToString()), schedule);
+            notificationMessage.Detail = actionResult.Message;
+            Schedules.Remove(schedule);
+
+            if (!actionResult.Successful)
+            {
+                notificationMessage.Severity = NotificationSeverity.Error;
+            }
+
+            _notificationService.Notify(notificationMessage);
+        }
+
+        gridSchedule.Reload();
+    }
+}

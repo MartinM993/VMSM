@@ -2,11 +2,124 @@
 @inject HttpClient _http
 @inject NavigationManager _navigationManager
 @inject NotificationService _notificationService
-@inject IJSRuntime _jsRuntime
 @attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
 
-<h3>Schedules</h3>
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add New Schedule
+                    </RadzenButton>
+                </div>
+                <div class="col-4">
+                    <RadzenButton Click="((args) => Edit())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                        <span class="oi oi-pencil" aria-hidden="true"></span> Edit Schedule
+                    </RadzenButton>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4">
+                    <RadzenGrid @ref="gridUser"
+                                Data="@users"
+                                TItem="AppUser"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                Value="@user"
+                                RowSelect="@(args => user = args)">
+                        <Columns>
+                            <RadzenGridColumn TItem="AppUser" Property="Name" Title="Name" />
+                            <RadzenGridColumn TItem="AppUser" Property="MiddleName" Title="MiddleName" />
+                            <RadzenGridColumn TItem="AppUser" Property="LastName" Title="LastName" />
+                        </Columns>
+                    </RadzenGrid>
+                </div>
+                <div class="col-8">
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Monday">
+                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Monday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="Tuesday">
+                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="Wednesday">
+                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Wednesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="Thursday">
+                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="Friday">
+                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Friday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
 
 @code {
+    bool isLoading = true;
+    IList<AppUser> users;
+    IList<Schedule> schedules;
+    RadzenGrid<AppUser> gridUser;
+    AppUser user;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var queryString = GetQuery(new UserSearchRequest
+        {
+            Role = Role.FieldWorker
+        });
+
+        users = await _http.GetJsonAsync<IList<AppUser>>(Routes.User.Root + queryString);
+        schedules = await _http.GetJsonAsync<IList<Schedule>>(Routes.Schedule.Root);
+
+        user = users.FirstOrDefault();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/schedules/addnew");
+    }
+
+    void Edit()
+    {
+        _navigationManager.NavigateTo("/schedules/edit");
+    }
+
+    private string GetQuery(UserSearchRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            parameters.Add($"Name={request.Name}");
+        if (!string.IsNullOrWhiteSpace(request.LastName))
+            parameters.Add($"LastName={request.LastName}");
+        if (!string.IsNullOrWhiteSpace(request.Email))
+            parameters.Add($"Email={request.Email}");
+        if (request.Role.HasValue)
+            parameters.Add($"Role={request.Role}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
 }

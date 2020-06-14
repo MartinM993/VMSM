@@ -1,0 +1,145 @@
+﻿@page "/schedules/edit"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@schedule" OnValidSubmit="Edit" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <h3 class="text-center h3-style">Add vending machines for schedule</h3>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Schedule:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="schedule.ScheduleId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Placeholder="Select Schedule..."
+                                                Style="width: 100%"
+                                                Data="@(schedules.Select(x => new { Text = $"Worker: {x.FieldWorker.Name} {x.FieldWorker.MiddleName} {x.FieldWorker.LastName}, Day: {x.Day}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => schedule.FieldWorkerId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Vending Machines:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="schedule.VendingMachineIds"
+                                                TextProperty="NameWithCode"
+                                                ValueProperty="Id"
+                                                AllowClear="true"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Multiple="true"
+                                                Placeholder="Select Vending Machines..."
+                                                Style="width: 100%"
+                                                Data="@vendingMachines" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                                <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="Cancel" />
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Save" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <ScheduleDay Schedules="@(schedules.Where(x => x.Id == schedule.ScheduleId).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    ScheduleCreateOrEtitRequest schedule = new ScheduleCreateOrEtitRequest();
+    IList<VendingMachine> vendingMachines;
+    IList<AppUser> users;
+    IList<Schedule> schedules;
+    bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var queryString = GetQuery(new UserSearchRequest
+        {
+            Role = Role.FieldWorker
+        });
+
+        schedules = await _http.GetJsonAsync<IList<Schedule>>(Routes.Schedule.Root);
+        users = await _http.GetJsonAsync<IList<AppUser>>(Routes.User.Root + queryString);
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+    }
+
+    async Task Edit()
+    {
+        var notificationMessage = new NotificationMessage
+        {
+            Summary = "Edit schedule:",
+            Severity = NotificationSeverity.Error,
+            Duration = 4000
+        };
+
+        var actionResult = await _http.SendJsonAsync<CustomActionResult>(HttpMethod.Put, Routes.Schedule.ById.Replace("{id}", schedule.ScheduleId.ToString()), schedule);
+        notificationMessage.Detail = actionResult.Message;
+
+        if (actionResult.Successful)
+        {
+            notificationMessage.Severity = NotificationSeverity.Success;
+            _notificationService.Notify(notificationMessage);
+            //await Task.Delay(5000);
+            _navigationManager.NavigateTo("/schedules");
+        }
+        else
+        {
+            _notificationService.Notify(notificationMessage);
+        }
+    }
+
+    void Cancel()
+    {
+        _navigationManager.NavigateTo("/schedules");
+    }
+
+    private string GetQuery(UserSearchRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.Name))
+            parameters.Add($"Name={request.Name}");
+        if (!string.IsNullOrWhiteSpace(request.LastName))
+            parameters.Add($"LastName={request.LastName}");
+        if (!string.IsNullOrWhiteSpace(request.Email))
+            parameters.Add($"Email={request.Email}");
+        if (request.Role.HasValue)
+            parameters.Add($"Role={request.Role}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
+}

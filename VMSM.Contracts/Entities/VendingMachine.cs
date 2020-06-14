@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using VMSM.Contracts.Enums;
 
 namespace VMSM.Contracts.Entities
@@ -27,5 +28,13 @@ namespace VMSM.Contracts.Entities
         public virtual int CostOfDefects { get; set; }
         public int MachineCost { get; set; }
         public virtual ICollection<VendingMachineSchedule> VendingMachineSchedules { get; set; }
+        [NotMapped]
+        public string NameWithCode 
+        { 
+            get 
+            { 
+                return $"{Name} {Model} with code: {Code}";
+            } 
+        }
     }
 }

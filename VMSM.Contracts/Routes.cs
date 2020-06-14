@@ -52,6 +52,7 @@
         {
             public const string Root = ApiPrefix + "/schedules";
             public const string ById = Root + "/{id}";
+            public const string RemoveVM = Root + "/removevm/{id}";
         }
 
         public static class StorageExport
