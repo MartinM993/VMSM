@@ -20,17 +20,21 @@
                 @vendingMachineSchedule.VendingMachine.Address.Town (@vendingMachineSchedule.VendingMachine.Address.ZipCode): @vendingMachineSchedule.VendingMachine.Address.Line1 @vendingMachineSchedule.VendingMachine.Address.Line2
             </Template>
         </RadzenGridColumn>
-        <RadzenGridColumn TItem="VendingMachineSchedule" Context="vendingMachineSchedule" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="75px">
-            <Template Context="vendingMachineSchedule">
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vendingMachineSchedule))">
-                </RadzenButton>
-            </Template>
-        </RadzenGridColumn>
+        @if (UserRole == Role.OfficeWorker)
+        {
+            <RadzenGridColumn TItem="VendingMachineSchedule" Context="vendingMachineSchedule" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="75px">
+                <Template Context="vendingMachineSchedule">
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete_forever" Size="ButtonSize.Medium" Click="@(args => DeleteRow(vendingMachineSchedule))">
+                    </RadzenButton>
+                </Template>
+            </RadzenGridColumn>
+        }
     </Columns>
 </RadzenGrid>
 
 @code {
     [Parameter] public IList<VendingMachineSchedule> Schedules { get; set; }
+    [Parameter] public Role UserRole { get; set; }
     RadzenGrid<VendingMachineSchedule> gridSchedule;
 
     async Task DeleteRow(VendingMachineSchedule schedule)

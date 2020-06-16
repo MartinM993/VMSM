@@ -1,0 +1,79 @@
+﻿@page "/fieldworkerschedules"
+@using VMSM.Client.Pages.OfficeWorker
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.FieldWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Monday">
+                    <ScheduleDay UserRole="Role.FieldWorker" Schedules="@(schedules.Where(x => x.Day == Day.Monday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Tuesday">
+                    <ScheduleDay UserRole="Role.FieldWorker" Schedules="@(schedules.Where(x => x.Day == Day.Tuesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Wednesday">
+                    <ScheduleDay UserRole="Role.FieldWorker" Schedules="@(schedules.Where(x => x.Day == Day.Wednesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Thursday">
+                    <ScheduleDay UserRole="Role.FieldWorker" Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Friday">
+                    <ScheduleDay UserRole="Role.FieldWorker" Schedules="@(schedules.Where(x => x.Day == Day.Friday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    IList<Schedule> schedules;
+    AppUser user;
+    RadzenGrid<VendingMachineSchedule> grid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await _http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
+
+        var queryString = GetQuery(new ScheduleSearchRequest
+        {
+            FieldWorkerId = user.Id
+        }); ;
+
+        schedules = await _http.GetJsonAsync<IList<Schedule>>(Routes.Schedule.Root + queryString);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private string GetQuery(ScheduleSearchRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.FieldWorkerName))
+            parameters.Add($"FieldWorkerName={request.FieldWorkerName}");
+        if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
+            parameters.Add($"FieldWorkerLastName={request.FieldWorkerLastName}");
+        if (request.Day.HasValue)
+            parameters.Add($"Day={request.Day}");
+        if (request.FieldWorkerId.HasValue)
+            parameters.Add($"FieldWorkerId={request.FieldWorkerId}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
+}

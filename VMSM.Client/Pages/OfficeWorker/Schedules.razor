@@ -47,19 +47,19 @@
                     <RadzenTabs>
                         <Tabs>
                             <RadzenTabsItem Text="Monday">
-                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Monday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                                <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Day == Day.Monday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                             </RadzenTabsItem>
                             <RadzenTabsItem Text="Tuesday">
-                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                                <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Day == Day.Tuesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                             </RadzenTabsItem>
                             <RadzenTabsItem Text="Wednesday">
-                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Wednesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                                <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Day == Day.Wednesday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                             </RadzenTabsItem>
                             <RadzenTabsItem Text="Thursday">
-                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                                <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Day == Day.Thursday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                             </RadzenTabsItem>
                             <RadzenTabsItem Text="Friday">
-                                <ScheduleDay Schedules="@(schedules.Where(x => x.Day == Day.Friday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                                <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Day == Day.Friday && x.FieldWorkerId == user.Id).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                             </RadzenTabsItem>
                         </Tabs>
                     </RadzenTabs>

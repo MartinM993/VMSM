@@ -17,41 +17,44 @@ namespace VMSM.Services
 
         public Schedule GetById(int id)
         {
-            var address = _repository.Get(id);
+            var schedule = _repository.Get(id);
 
-            return address;
+            return schedule;
         }
 
         public IEnumerable<Schedule> GetByCriteria(ScheduleSearchRequest request)
         {
-            var addresses = _repository.GetAll();
+            var schedules = _repository.GetAll();
 
             if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
-                addresses = addresses.Where(x => x.FieldWorker.Name.ToLower().Contains(request.FieldWorkerLastName.ToLower()));
+                schedules = schedules.Where(x => x.FieldWorker.Name.ToLower().Contains(request.FieldWorkerLastName.ToLower()));
 
-            if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
-                addresses = addresses.Where(x => x.FieldWorker.LastName.ToLower().Contains(request.FieldWorkerLastName.ToLower()));
+            if (!string.IsNullOrWhiteSpace(request.FieldWorkerName))
+                schedules = schedules.Where(x => x.FieldWorker.LastName.ToLower().Contains(request.FieldWorkerName.ToLower()));
 
             if (request.Day.HasValue)
-                addresses = addresses.Where(x => x.Day == request.Day);
+                schedules = schedules.Where(x => x.Day == request.Day);
 
-            return addresses;
+            if (request.FieldWorkerId.HasValue)
+                schedules = schedules.Where(x => x.FieldWorkerId == request.FieldWorkerId);
+
+            return schedules;
         }
 
         public Schedule Create(Schedule request)
         {
-            var address = _repository.Add(request);
+            var schedule = _repository.Add(request);
             _repository.Save();
 
-            return address;
+            return schedule;
         }
 
         public Schedule Update(Schedule request)
         {
-            var address = _repository.Update(request);
+            var schedule = _repository.Update(request);
             _repository.Save();
 
-            return address;
+            return schedule;
         }
 
         public void Delete(int id)

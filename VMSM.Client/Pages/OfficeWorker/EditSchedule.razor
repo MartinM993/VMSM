@@ -63,7 +63,7 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <ScheduleDay Schedules="@(schedules.Where(x => x.Id == schedule.ScheduleId).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
+                    <ScheduleDay UserRole="Role.OfficeWorker" Schedules="@(schedules.Where(x => x.Id == schedule.ScheduleId).FirstOrDefault()?.VendingMachineSchedules.ToList())" />
                 </div>
             </div>
         </div>
