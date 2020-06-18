@@ -1,0 +1,38 @@
+﻿<RadzenGrid @ref="grid"
+            Data="@(productCategory == null ?
+                            Exports :
+                            Exports.Where(x => x.Product.Category == productCategory))"
+            TItem="StorageExport"
+            AllowFiltering="true"
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+            AllowSorting="true"
+            AllowPaging="true"
+            PageSize="10">
+    <Columns>
+        <RadzenGridColumn TItem="StorageExport" Property="FieldWorker.LastName" Title="Field Worker">
+            <Template Context="storageExport">
+                @storageExport.FieldWorker.Name @storageExport.FieldWorker.MiddleName @storageExport.FieldWorker.LastName
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="StorageExport" Property="Product.Name" Title="Product Name" />
+        <RadzenGridColumn TItem="StorageExport" Property="Product.Code" Title="Product Code" />
+        <RadzenGridColumn TItem="StorageExport" Property="Product.Category" Title="Product Category">
+            <FilterTemplate>
+                <RadzenDropDown @bind-Value="@productCategory"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                Style="width:100%"
+                                AllowClear="true"
+                                Data="@(Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>().Select(t => new { Text = $"{t}", Value = t }))" />
+            </FilterTemplate>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="StorageExport" Property="Product.StorageQuantity" Title="Product Storage Quantity" />
+        <RadzenGridColumn TItem="StorageExport" Property="Quantity" Title="Exported Quantity" />
+    </Columns>
+</RadzenGrid>
+
+@code {
+    [Parameter] public IList<StorageExport> Exports { get; set; }
+    RadzenGrid<StorageExport> grid;
+    ProductCategory? productCategory = null;
+}

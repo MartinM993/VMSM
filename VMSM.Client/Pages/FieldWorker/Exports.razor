@@ -1,7 +1,6 @@
-﻿@page "/exports"
+﻿@page "/storageexports"
 @inject HttpClient _http
-@inject NavigationManager _navigationManager
-@attribute [Authorize(Roles = nameof(Role.StorageWorker))]
+@attribute [Authorize(Roles = nameof(Role.FieldWorker))]
 
 <SpinLoader IsLoading="isLoading">
     <LoadingTemplate>
@@ -10,10 +9,7 @@
         </div>
     </LoadingTemplate>
     <ContentTemplate>
-        <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
-            <span class="oi oi-plus" aria-hidden="true"></span> Add New Storage Export
-        </RadzenButton>
-        <StorageExports Exports="@exports"/>
+        <StorageExports Exports="@exports" />
     </ContentTemplate>
 </SpinLoader>
 
@@ -27,17 +23,12 @@
 
         var queryString = GetQuery(new StorageExportSearchRequest
         {
-            StorageWorkerId = user.Id
+            FieldWorkerId = user.Id
         });
         exports = await _http.GetJsonAsync<IList<StorageExport>>(Routes.StorageExport.Root + queryString);
 
         isLoading = false;
         StateHasChanged();
-    }
-
-    void AddNew()
-    {
-        _navigationManager.NavigateTo("/exports/addnew");
     }
 
     private string GetQuery(StorageExportSearchRequest request)
