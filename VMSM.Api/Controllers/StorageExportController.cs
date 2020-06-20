@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Linq;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
@@ -17,11 +19,16 @@ namespace VMSM.Api.Controllers
     {
         private readonly IStorageExportService _storageExportService;
         private readonly IProductService _productService;
+        private readonly IFieldWorkerProductService _fieldWorkerProductService;
 
-        public StorageExportController(IStorageExportService storageExportService, IProductService productService, UserManager<AppUser> userManager) : base(userManager)
+        public StorageExportController(IStorageExportService storageExportService, 
+                                       IProductService productService, 
+                                       IFieldWorkerProductService fieldWorkerProductService, 
+                                       UserManager<AppUser> userManager) : base(userManager)
         {
             _storageExportService = storageExportService;
             _productService = productService;
+            _fieldWorkerProductService = fieldWorkerProductService;
         }
 
         [HttpGet]
@@ -76,6 +83,43 @@ namespace VMSM.Api.Controllers
             {
                 actionResult.Successful = false;
                 actionResult.Message = "Create storage export was successfully, but Storage Quantity of the product was not updated properly, please contact Office worker!";
+
+                return Ok(actionResult);
+            }
+
+            var fieldWorkerProducts = _fieldWorkerProductService.GetByCriteria(new FieldWorkerProductSearchRequest 
+            { 
+                FieldWorkerId = request.FieldWorkerId,
+                ProductId = request.ProductId
+            });
+
+            try
+            {
+                if (fieldWorkerProducts.Count() == 0)
+                {
+                    var fieldWorkerProduct = new FieldWorkerProduct
+                    {
+                        FieldWorkerId = request.FieldWorkerId,
+                        ProductId = request.ProductId,
+                        Quantity = request.Quantity
+                    };
+                    fieldWorkerProduct.SetAudit(CurrentLoggedUserId);
+
+                    _fieldWorkerProductService.Create(fieldWorkerProduct);
+                }
+                else
+                {
+                    var fieldWorkerProduct = fieldWorkerProducts.First();
+                    fieldWorkerProduct.Quantity += request.Quantity;
+                    fieldWorkerProduct.SetAudit(CurrentLoggedUserId);
+
+                    _fieldWorkerProductService.Update(fieldWorkerProduct);
+                }
+            }
+            catch
+            {
+                actionResult.Successful = false;
+                actionResult.Message = "Create storage export was successfully, but Field Worker Quantity of the product was not updated properly, please contact Office worker!";
 
                 return Ok(actionResult);
             }

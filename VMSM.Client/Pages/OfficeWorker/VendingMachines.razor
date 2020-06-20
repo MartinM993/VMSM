@@ -120,6 +120,7 @@
         vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
         vendingMachineProductPrices = await _http.GetJsonAsync<IList<VendingMachineProductPrice>>(Routes.VendingMachineProductPrice.Root);
 
+        vendingMachineProducts = vendingMachineProducts.GroupBy(x => new { x.ProductId, x.VendingMachineId}).Select(x => x.First()).ToList();
         isLoading = false;
         StateHasChanged();
     }

@@ -1,5 +1,8 @@
-﻿using VMSM.Contracts.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Requests;
 
 namespace VMSM.Services
 {
@@ -17,6 +20,18 @@ namespace VMSM.Services
             var fieldWorkerProduct = _repository.Get(id);
 
             return fieldWorkerProduct;
+        }
+
+        public IEnumerable<FieldWorkerProduct> GetByCriteria(FieldWorkerProductSearchRequest request)
+        {
+            var fieldWorkerProducts = _repository.GetAll();
+
+            if (request.FieldWorkerId.HasValue)
+                fieldWorkerProducts = fieldWorkerProducts.Where(x => x.FieldWorkerId == request.FieldWorkerId);
+            if (request.ProductId.HasValue)
+                fieldWorkerProducts = fieldWorkerProducts.Where(x => x.ProductId == request.ProductId);
+
+            return fieldWorkerProducts;
         }
 
         public FieldWorkerProduct Create(FieldWorkerProduct request)

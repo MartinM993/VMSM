@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
 
@@ -37,8 +38,18 @@ namespace VMSM.Services
 
         public void Delete(int id)
         {
-            _repository.Delete(id);
-            _repository.Save();
+            var vendingMachineProduct = _repository.Get(id);
+            var vendingMachineProducts = _repository.GetAll();
+            vendingMachineProducts = vendingMachineProducts.Where(x => 
+                                        x.VendingMachineId == vendingMachineProduct.VendingMachineId && 
+                                        x.ProductId == vendingMachineProduct.ProductId && 
+                                        x.Quantity == 0).ToList();
+
+            foreach(var vmProduct in vendingMachineProducts)
+            {
+                _repository.Delete(vmProduct.Id);
+                _repository.Save();
+            }           
         }
     }
 }

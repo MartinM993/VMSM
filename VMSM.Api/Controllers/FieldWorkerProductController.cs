@@ -1,13 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using VMSM.Contracts;
 using VMSM.Contracts.Entities;
 using VMSM.Contracts.Interfaces;
+using VMSM.Contracts.Requests;
 
 namespace VMSM.Api.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FieldWorkerProductController : BaseController
     {
         private readonly IFieldWorkerProductService _fieldWorkerProductService;
@@ -22,6 +26,15 @@ namespace VMSM.Api.Controllers
         public IActionResult GetById([FromRoute]int id)
         {
             var fieldWorkerProduct = _fieldWorkerProductService.GetById(id);
+
+            return Ok(fieldWorkerProduct);
+        }
+
+        [HttpGet]
+        [Route(Routes.FieldWorkerProduct.Root)]
+        public IActionResult GetByCriteria([FromQuery] FieldWorkerProductSearchRequest request)
+        {
+            var fieldWorkerProduct = _fieldWorkerProductService.GetByCriteria(request);
 
             return Ok(fieldWorkerProduct);
         }

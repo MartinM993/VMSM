@@ -1,0 +1,46 @@
+﻿@page "/fieldworkerproducts"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.FieldWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <RadzenGrid @ref="grid"
+                    Data="@fieldWorkerProducts"
+                    TItem="FieldWorkerProduct"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowSorting="true"
+                    AllowPaging="true"
+                    PageSize="10">
+            <Columns>
+                <RadzenGridColumn TItem="FieldWorkerProduct" Property="Product.Name" Title="Name" />
+                <RadzenGridColumn TItem="FieldWorkerProduct" Property="Product.Code" Title="Name" />
+                <RadzenGridColumn TItem="FieldWorkerProduct" Property="Quantity" Title="Workers Quantity" />
+                <RadzenGridColumn TItem="FieldWorkerProduct" Property="Product.StorageQuantity" Title="Storage Quantity" />
+            </Columns>
+        </RadzenGrid>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    RadzenGrid<FieldWorkerProduct> grid;
+    IList<FieldWorkerProduct> fieldWorkerProducts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await _http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
+        fieldWorkerProducts = await _http.GetJsonAsync<IList<FieldWorkerProduct>>(Routes.FieldWorkerProduct.Root);
+
+        fieldWorkerProducts = fieldWorkerProducts.Where(x => x.FieldWorkerId == user.Id).ToList();
+        isLoading = false;
+        StateHasChanged();
+    }
+}
