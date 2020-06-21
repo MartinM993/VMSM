@@ -1,0 +1,104 @@
+﻿<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <EditForm Model="@Product" OnValidSubmit="@OnValidSubmit" class="formBorder magin-top-15">
+                <DataAnnotationsValidator />
+                <p class="text-center h3-style">Add Product for Vending Machine</p>
+                <div class="row form-group">
+                    <div class="col-3 text-right">
+                        <label class="magin-top-5">Vending Machine:</label>
+                    </div>
+                    <div class="col-9">
+                        <RadzenDropDown @bind-Value="@Product.VendingMachineId"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        AllowClear="true"
+                                        Placeholder="Select Vending Machine.."
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        FilterOperator="StringFilterOperator.Contains"
+                                        AllowFiltering="true"
+                                        Style="width: 90%"
+                                        Data="@(VendingMachines.Select(x => new { Text = $"{x.Name} {x.Model} with code: {x.Code}", Value = x.Id }))" />
+                        <ValidationMessage For="@(() => Product.VendingMachineId)" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-3 text-right">
+                        <label class="magin-top-5">Product:</label>
+                    </div>
+                    <div class="col-9">
+                        <RadzenDropDown @bind-Value="@Product.ProductId"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        AllowClear="true"
+                                        Placeholder="Select Product.."
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        FilterOperator="StringFilterOperator.Contains"
+                                        AllowFiltering="true"
+                                        Style="width: 90%"
+                                        Name="test"
+                                        Data="@(Products.Select(x => new { Text = $"{x.Name} with code: {x.Code}", Value = x.Id }))" />
+                        <ValidationMessage For="@(() => Product.ProductId)" />
+                    </div>
+                </div>
+                @if (UserRole == Role.FieldWorker)
+                {
+                    <div class="row form-group">
+                        <div class="col-3 text-right">
+                            <label class="magin-top-5">Quantity:</label>
+                        </div>
+                        <div class="col-9">
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="@Product.Quantity" />
+                            <ValidationMessage For="@(() => Product.Quantity)" />
+                        </div>
+                    </div>
+                }
+                <div class="row">
+                    <div class="col-6 text-right">
+                        <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Danger" Click="@OnCancel" />
+                    </div>
+                    <div class="col-6">
+                        <RadzenButton type="submit" Text="Save" ButtonStyle="ButtonStyle.Success" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+    <div class="row magin-top-15">
+        <RadzenGrid Data="@VendingMachines.Where(x => x.Id == Product.VendingMachineId)"
+                    TItem="VendingMachine">
+            <Columns>
+                <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Vending Machine Name" />
+                <RadzenGridColumn TItem="VendingMachine" Property="Model" Title="Model" />
+                <RadzenGridColumn TItem="VendingMachine" Property="Code" Title="Code" />
+                <RadzenGridColumn TItem="VendingMachine" Property="Category" Title="Category" />
+                <RadzenGridColumn TItem="VendingMachine" Property="Address.Town">
+                    <Template Context="address">
+                        @address.Address.Town (@address.Address.ZipCode): @address.Address.Line1
+                    </Template>
+                </RadzenGridColumn>
+            </Columns>
+        </RadzenGrid>
+    </div>
+    <div class="row magin-top-15">
+        <RadzenGrid Data="@Products.Where(x => x.Id == Product.ProductId)"
+                    TItem="Product">
+            <Columns>
+                <RadzenGridColumn TItem="Product" Property="Name" Title="Product Name" />
+                <RadzenGridColumn TItem="Product" Property="Code" Title="Code" />
+                <RadzenGridColumn TItem="Product" Property="SellingPrice" Title="SellingPrice" />
+                <RadzenGridColumn TItem="Product" Property="SellingPieces" Title="SellingPieces" />
+                <RadzenGridColumn TItem="Product" Property="PriceByPiece" Title="PriceByPiece" />
+            </Columns>
+        </RadzenGrid>
+    </div>
+</div>
+
+@code {
+    [Parameter] public VendingMachineProduct Product { get; set; }
+    [Parameter] public IList<VendingMachine> VendingMachines { get; set; }
+    [Parameter] public IList<Product> Products { get; set; }
+    [Parameter] public Role UserRole { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

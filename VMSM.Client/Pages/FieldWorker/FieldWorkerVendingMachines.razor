@@ -1,0 +1,141 @@
+﻿@page "/fieldworkervendingmachines"
+@inject HttpClient _http
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.FieldWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-4">
+                    <RadzenGrid @ref="grid"
+                                Data="@vendingMachines"
+                                TItem="VendingMachine"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                Value="@vendingMachine"
+                                RowSelect="@(args => vendingMachine = args)">
+                        <Columns>
+                            <RadzenGridColumn TItem="VendingMachine" Property="Name" Title="Name" />
+                            <RadzenGridColumn TItem="VendingMachine" Property="Code" Title="Code" />
+                        </Columns>
+                    </RadzenGrid>
+                </div>
+                <div class="col-8">
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Added Products in Vending Machine">
+                                <RadzenButton Click="((args) => AddNew())" ButtonStyle="ButtonStyle.Success" Text="Add New" class="magin-bottom-15">
+                                    <span class="oi oi-plus" aria-hidden="true"></span> Add New Product
+                                </RadzenButton>
+                                <RadzenGrid @ref="gridVMProducts"
+                                            Data="@(vendingMachineProducts.Where(x => x.VendingMachineId == vendingMachine.Id))"
+                                            TItem="VendingMachineProduct"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowSorting="true"
+                                            AllowPaging="true"
+                                            PageSize="10">
+                                    <Columns>
+                                        <RadzenGridColumn TItem="VendingMachineProduct" Property="Product.Name" Title="Name" />
+                                        <RadzenGridColumn TItem="VendingMachineProduct" Property="Product.Code" Title="Code" />
+                                        <RadzenGridColumn TItem="VendingMachineProduct" Property="Quantity" Title="Quantity" />
+                                        <RadzenGridColumn TItem="VendingMachineProduct" Property="DateCreated" Title="Date Added" />
+                                    </Columns>
+                                </RadzenGrid>
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="Product Prices">
+                                <RadzenGrid @ref="gridVMProductsPrice"
+                                            Data="@(vendingMachineProductPrices.Where(x => x.VendingMachineId == vendingMachine.Id))"
+                                            TItem="VendingMachineProductPrice"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowSorting="true"
+                                            AllowPaging="true"
+                                            PageSize="10">
+                                    <Columns>
+                                        <RadzenGridColumn TItem="VendingMachineProductPrice" Property="Product.Name" Title="Name" />
+                                        <RadzenGridColumn TItem="VendingMachineProductPrice" Property="Product.Code" Title="Code" />
+                                        <RadzenGridColumn TItem="VendingMachineProductPrice" Property="Product.SellingPrice" Title="Selling Price" />
+                                        <RadzenGridColumn TItem="VendingMachineProductPrice" Property="Product.PriceByPiece" Title="Price By Piece" />
+                                        <RadzenGridColumn TItem="VendingMachineProductPrice" Property="Price" Title="Price in Vending Machine" />
+                                    </Columns>
+                                </RadzenGrid>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+
+@code {
+    bool isLoading = true;
+    RadzenGrid<VendingMachine> grid;
+    RadzenGrid<VendingMachineProductPrice> gridVMProductsPrice;
+    RadzenGrid<VendingMachineProduct> gridVMProducts;
+    VendingMachine vendingMachine;
+    IList<VendingMachine> vendingMachines;
+    IList<VendingMachineProductPrice> vendingMachineProductPrices;
+    IList<VendingMachineProduct> vendingMachineProducts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vendingMachineProductPrices = await _http.GetJsonAsync<IList<VendingMachineProductPrice>>(Routes.VendingMachineProductPrice.Root);
+        vendingMachineProducts = await _http.GetJsonAsync<IList<VendingMachineProduct>>(Routes.VendingMachineProduct.Root);
+        var user = await _http.GetJsonAsync<AppUser>(Routes.User.CurrentLoggedUser);
+        var queryString = GetQuery(new ScheduleSearchRequest
+        {
+            FieldWorkerId = user.Id
+        });
+
+        var schedules = await _http.GetJsonAsync<IList<Schedule>>(Routes.Schedule.Root + queryString);
+        var vendingMachineSchedules = new List<VendingMachineSchedule>();
+        foreach (var schedule in schedules)
+        {
+            vendingMachineSchedules.AddRange(schedule.VendingMachineSchedules);
+        }
+        vendingMachines = vendingMachineSchedules.Select(x => x.VendingMachine).GroupBy(x => x.Id).Select(x => x.First()).ToList();
+
+        vendingMachine = vendingMachines.FirstOrDefault();
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    void AddNew()
+    {
+        _navigationManager.NavigateTo("/fieldworkervendingmachines/addnew");
+    }
+
+    private string GetQuery(ScheduleSearchRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.FieldWorkerName))
+            parameters.Add($"FieldWorkerName={request.FieldWorkerName}");
+        if (!string.IsNullOrWhiteSpace(request.FieldWorkerLastName))
+            parameters.Add($"FieldWorkerLastName={request.FieldWorkerLastName}");
+        if (request.Day.HasValue)
+            parameters.Add($"Day={request.Day}");
+        if (request.FieldWorkerId.HasValue)
+            parameters.Add($"FieldWorkerId={request.FieldWorkerId}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
+}

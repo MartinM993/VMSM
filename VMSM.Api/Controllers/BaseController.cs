@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using VMSM.Contracts.Entities;
+using VMSM.Contracts.Enums;
 
 namespace VMSM.Api.Controllers
 {
@@ -21,6 +22,15 @@ namespace VMSM.Api.Controllers
             {
                 var currentLoggedUser = _userManager.FindByNameAsync(HttpContext.User.Identity.Name).Result;
                 return currentLoggedUser.Id;
+            }
+        }
+
+        protected Role CurrentLoggedUserRole
+        {
+            get
+            {
+                var currentLoggedUser = _userManager.FindByNameAsync(HttpContext.User.Identity.Name).Result;
+                return currentLoggedUser.UserRole;
             }
         }
     }
