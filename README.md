@@ -1,16 +1,27 @@
-# VMSM is a web application that should allow easy managing of vending machines. 
+# VMSM - Blazor WebAssembly application
+
+The main purpose of this application is to allow managing staff that works with vending machines. That mean creating schedules (which worker on which day will visit proper vending machine), financial reports for incomes and defects abot vending machines etd
 
 # Used technologies:
   - .NET Core 3.1
   - .NET Core Identity
-  - Blazor
+  - Blazor WebAssembly
   - Radzen Blazor Components for UI 
 
 # There are 4 types of roles:
-  - Super admin - adding new users (workers), generating reports
-  - Office worker - is responsible for making schedules for Field workers and financials (incomes, generating reports, invoices etd)
-  - Field worker - visits the vending machines, adds the products in it, collect the income from it etd
-  - Storage worker - is responsible for the storage, imports the products in storage from suppliers and export them to the field workers
+  - Super admin 
+    - managing with users (workers), vending machines, addresses and vehicles
+  - Office worker
+    - managing with products, product prices, incomes and defects
+    - creating and managing schedules for field workers
+    - generating reports about vending machines
+  - Field worker 
+    - visits the vending machines
+    - adds the products in vending machines
+    - collect the income from
+  - Storage worker (responsible for the storage)
+    - imports the products in storage from suppliers
+    - export the products from storage to the field workers
   
 # Start the app:
   - Download zip or clone the project
