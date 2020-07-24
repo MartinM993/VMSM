@@ -33,7 +33,7 @@ namespace VMSM.Contracts.Entities
         { 
             get 
             { 
-                return $"{Name} {Model} with code: {Code}";
+                return $"{Name} {Model} with Code: {Code}";
             } 
         }
     }

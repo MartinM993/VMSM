@@ -49,7 +49,7 @@ namespace VMSM.Api.Controllers
             var actionResult = new CustomActionResult
             {
                 Successful = true,
-                Message = "Income was successfull created!"
+                Message = "Income was successfully created!"
             };          
 
             try

@@ -92,5 +92,10 @@
             public const string Logout = ApiPrefix + "/logout";
             public const string ChangePassword = ApiPrefix + "/changepassword";
         }
+
+        public static class Report
+        {
+            public const string Root = ApiPrefix + "/report";
+        }
     }
 }

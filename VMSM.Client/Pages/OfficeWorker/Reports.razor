@@ -1,0 +1,155 @@
+﻿@page  "/reports"
+@inject HttpClient _http
+@inject NotificationService _notificationService
+@attribute [Authorize(Roles = nameof(Role.OfficeWorker))]
+
+<SpinLoader IsLoading="isLoading">
+    <LoadingTemplate>
+        <div class="row col-12">
+            <Chase Center="true" Color="#1E90FF" Size="70px"></Chase>
+        </div>
+    </LoadingTemplate>
+    <ContentTemplate>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <EditForm Model="@request" OnValidSubmit="Generate" class="formBorder magin-top-15">
+                        <DataAnnotationsValidator />
+                        <h3 class="text-center h3-style">Generate Report for Vending Machine</h3>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Date From:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDatePicker @bind-Value="request.From" DateFormat="d" />
+                                <ValidationMessage For="@(() => request.From)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Date To:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDatePicker @bind-Value="request.To" DateFormat="d" />
+                                <ValidationMessage For="@(() => request.To)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Vending Machine:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@request.VendingMachineId"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                Placeholder="Select Vending Machine.."
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                FilterOperator="StringFilterOperator.Contains"
+                                                AllowFiltering="true"
+                                                Style="width: 90%"
+                                                Data="@(vendingMachines.Select(x => new { Text = $"{x.NameWithCode}", Value = x.Id }))" />
+                                <ValidationMessage For="@(() => request.VendingMachineId)" />
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-6 text-right">
+                                <label class="magin-top-5">Report Type:</label>
+                            </div>
+                            <div class="col-6">
+                                <RadzenDropDown @bind-Value="@request.Type"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                Data="@(Enum.GetValues(typeof(ReportType)).Cast<ReportType>().Select(x => new { Text = $"{x}", Value = x }))" />
+                                <ValidationMessage For="@(() => request.Type)" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-right">
+                            </div>
+                            <div class="col-6">
+                                <RadzenButton type="submit" Text="Generate Report" ButtonStyle="ButtonStyle.Success" />
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 magin-top-15">
+                    @if (isDefect)
+                    {
+                        <DefectReport Defects="@defects" VendingMachine="@selectedVendingMachine" ReportRequest="@request" />
+                    }
+                    @if(isIncome)
+                    {
+                        <p>income</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </ContentTemplate>
+</SpinLoader>
+@code {
+    bool isLoading = true;
+    bool isDefect = false;
+    bool isIncome = false;
+    IList<VendingMachine> vendingMachines;
+    IList<Defect> defects;
+    ReportRequest request = new ReportRequest
+    {
+        From = DateTime.Now,
+        To = DateTime.Now
+    };
+    VendingMachine selectedVendingMachine;
+
+    protected override async Task OnInitializedAsync()
+    {
+        vendingMachines = await _http.GetJsonAsync<IList<VendingMachine>>(Routes.VendingMachine.Root);
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    async Task Generate()
+    {
+        selectedVendingMachine = vendingMachines.Where(x => x.Id == request.VendingMachineId).FirstOrDefault();
+        var queryString = GetQuery(new ReportRequest
+        {
+            From = request.From,
+            To = request.To,
+            Type = request.Type,
+            VendingMachineId = request.VendingMachineId
+        });
+        @switch (request.Type)
+        {
+            case ReportType.Income:
+                {
+                    isIncome = true;
+                    break;
+                }
+            case ReportType.Defect:
+                {
+                    defects = await _http.GetJsonAsync<IList<Defect>>(Routes.Report.Root + queryString);
+                    isDefect = true;
+                    break;
+                }
+        }
+    }
+
+    private string GetQuery(ReportRequest request)
+    {
+        List<string> parameters = new List<string>();
+
+        parameters.Add($"From={request.From.ToString("MM/dd/yyyy")}");
+        parameters.Add($"To={request.To.ToString("MM/dd/yyyy")}");
+        parameters.Add($"Type={request.Type}");
+        parameters.Add($"VendingMachineId={request.VendingMachineId}");
+
+        var queryString = string.Empty;
+        if (parameters.Any())
+        {
+            queryString = $"?{string.Join("&", parameters)}";
+        };
+
+        return queryString;
+    }
+}

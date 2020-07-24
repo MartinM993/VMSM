@@ -81,6 +81,7 @@ namespace VMSM.Server
             services.AddTransient<IVehicleService, VehicleService>();
             services.AddTransient<IVendingMachineProductService, VendingMachineProductService>();
             services.AddTransient<IVendingMachineProductPriceService, VendingMachineProductPriceService>();
+            services.AddTransient<IReportService, ReportService>();
 
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         }

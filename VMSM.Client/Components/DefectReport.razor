@@ -1,0 +1,25 @@
+﻿<h3 class="h3-style">Report for defects for vending machine: @VendingMachine.NameWithCode</h3>
+<h3 class="h3-style">From date: @ReportRequest.From.ToString("MM/dd/yyyy")</h3>
+<h3 class="h3-style">To date: @ReportRequest.To.ToString("MM/dd/yyyy")</h3>
+<h3 class="h3-style">Total sum: @(Defects.Sum(x => x.Cost))</h3>
+<RadzenGrid @ref="grid"
+            Data="Defects"
+            TItem="Defect"
+            AllowFiltering="true"
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+            AllowSorting="true"
+            AllowPaging="true"
+            PageSize="10">
+    <Columns>
+        <RadzenGridColumn TItem="Defect" Property="Description" Title="Defect Description" />
+        <RadzenGridColumn TItem="Defect" Property="Cost" Title="Defect Cost" />
+        <RadzenGridColumn TItem="Defect" Property="DateCreated" Title="On Date" />
+    </Columns>
+</RadzenGrid>
+
+@code {
+    [Parameter] public IList<Defect> Defects { get; set; }
+    [Parameter] public VendingMachine VendingMachine { get; set; }
+    [Parameter] public ReportRequest ReportRequest { get; set; }
+    RadzenGrid<Defect> grid;
+}

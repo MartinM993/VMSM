@@ -24,6 +24,7 @@ namespace VMSM.Contracts.Models
         [Compare("Password", ErrorMessage = "The password and comfirm password do not match!")]
         public string ConfirmPassword { get; set; }
         [Required]
+        [Range(1, 100000, ErrorMessage = "Select Address!")]
         public int AddressId { get; set; }
         public int? VehicleId { get; set; }
     }
