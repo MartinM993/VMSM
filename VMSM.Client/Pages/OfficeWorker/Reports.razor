@@ -77,7 +77,7 @@
                 <div class="col-12 magin-top-15">
                     @if (isDefect)
                     {
-                        <DefectReport Defects="@defects" VendingMachine="@selectedVendingMachine" ReportRequest="@request" />
+                        <DefectReport Defects="@defects" ReportTitle="@reportTitle" ReportRequest="@request" Columns="@columns"/>
                     }
                     @if(isIncome)
                     {
@@ -100,6 +100,8 @@
         To = DateTime.Now
     };
     VendingMachine selectedVendingMachine;
+    string reportTitle;
+    List<string> columns = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,6 +114,7 @@
     async Task Generate()
     {
         selectedVendingMachine = vendingMachines.Where(x => x.Id == request.VendingMachineId).FirstOrDefault();
+        
         var queryString = GetQuery(new ReportRequest
         {
             From = request.From,
@@ -123,12 +126,21 @@
         {
             case ReportType.Income:
                 {
+                    isDefect = false;
                     isIncome = true;
                     break;
                 }
             case ReportType.Defect:
                 {
                     defects = await _http.GetJsonAsync<IList<Defect>>(Routes.Report.Root + queryString);
+                    reportTitle = "Report for defects for vending machine:" + selectedVendingMachine.NameWithCode;
+
+                    columns.Clear();
+                    columns.Add("Description");
+                    columns.Add("Cost");
+                    columns.Add("DateCreated");
+
+                    isIncome = false;
                     isDefect = true;
                     break;
                 }

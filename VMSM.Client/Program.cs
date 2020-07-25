@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Radzen;
 using VMSM.Client.Auth;
+using VMSM.Client.PdfExport;
 using VMSM.Contracts.Interfaces;
 
 namespace VMSM.Client
@@ -24,6 +25,7 @@ namespace VMSM.Client
             builder.Services.AddAuthorizationCore();
             builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped(typeof(IPdfExportService<>), typeof(PdfExportService<>));
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddScoped<DialogService>();
 
