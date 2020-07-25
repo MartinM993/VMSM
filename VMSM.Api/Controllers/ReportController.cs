@@ -31,8 +31,8 @@ namespace VMSM.Api.Controllers
             {
                 case ReportType.Income:
                     {
-                        _reportService.IncomeReport(request);
-                        return Ok();
+                        var incomes = _reportService.IncomeReport(request);
+                        return Ok(incomes);
                     }
                 case ReportType.Defect:
                     {

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VMSM.Contracts.Entities
 {
@@ -9,5 +10,7 @@ namespace VMSM.Contracts.Entities
         [Required]
         [Range(0, 100000, ErrorMessage = "Collected Income value should be between 0 and 100000")]
         public virtual int CollectedIncome { get; set; }
+        [NotMapped]
+        public int Profit { get; set; }
     }
 }

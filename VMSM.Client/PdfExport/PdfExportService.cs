@@ -9,7 +9,6 @@ using System.Linq;
 using VMSM.Contracts.Requests;
 using System.Data;
 using VMSM.Contracts.Entities;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace VMSM.Client.PdfExport
 {
@@ -83,6 +82,11 @@ namespace VMSM.Client.PdfExport
             if (typeof(Defect) == entities.FirstOrDefault().GetType())
             {
                 info += "Total sum: " + entities.Cast<Defect>().Sum(x => x.Cost);
+            }
+            else if (typeof(Income) == entities.FirstOrDefault().GetType())
+            {
+                info += "Total sum: " + entities.Cast<Income>().Sum(x => x.CollectedIncome) + "\n";
+                //info += "Total approximate profit: " + entities.Cast<Income>().Sum(x => x.Profit);
             }
             
             return info;

@@ -24,6 +24,7 @@
     bool isLoading = true;
     VendingMachineProduct vendingMachineProduct = new VendingMachineProduct();
     IList<VendingMachine> vendingMachines;
+    IList<FieldWorkerProduct> fieldWorkerProducts;
     IList<Product> products;
 
     protected override async Task OnInitializedAsync()
@@ -41,7 +42,12 @@
             vendingMachineSchedules.AddRange(schedule.VendingMachineSchedules);
         }
         vendingMachines = vendingMachineSchedules.Select(x => x.VendingMachine).GroupBy(x => x.Id).Select(x => x.First()).ToList();
+
+        fieldWorkerProducts = await _http.GetJsonAsync<IList<FieldWorkerProduct>>(Routes.FieldWorkerProduct.Root);
+        fieldWorkerProducts = fieldWorkerProducts.Where(x => x.FieldWorkerId == user.Id).ToList();
+
         products = await _http.GetJsonAsync<IList<Product>>(Routes.Product.Root);
+        products = products.Where(x => fieldWorkerProducts.Select(y => y.ProductId).Contains(x.Id)).ToList();
 
         isLoading = false;
     }

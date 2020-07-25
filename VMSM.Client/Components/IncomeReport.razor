@@ -1,0 +1,49 @@
+﻿@inject IPdfExportService<Income> _pdfExportService
+
+<div container-fluid>
+    <div class="row">
+        <div class="col-8">
+            <h3 class="h3-style">@ReportTitle</h3>
+            <h3 class="h3-style">From date: @ReportRequest.From.ToString("MM/dd/yyyy")</h3>
+            <h3 class="h3-style">To date: @ReportRequest.To.ToString("MM/dd/yyyy")</h3>
+            <h3 class="h3-style">Total sum: @(Incomes.Sum(x => x.CollectedIncome))</h3>
+            @*<h3 class="h3-style">Total approximate profit: @(Incomes.Sum(x => x.Profit))</h3>*@
+        </div>
+        <div class="col-4">
+            <RadzenButton Click="((args) => ExportToPdf())" ButtonStyle="ButtonStyle.Secondary" Text="Export to PDF" class="magin-bottom-15">
+                <span class="oi oi-data-transfer-download" aria-hidden="true"></span> Export to PDF
+            </RadzenButton>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <RadzenGrid @ref="grid"
+                        Data="Incomes"
+                        TItem="Income"
+                        AllowFiltering="true"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        PageSize="10">
+                <Columns>
+                    <RadzenGridColumn TItem="Income" Property="CollectedIncome" Title="CollectedIncome" />
+                    <RadzenGridColumn TItem="Income" Property="Profit" Title="Approximate Profit" />
+                    <RadzenGridColumn TItem="Income" Property="DateCreated" Title="On Date" />
+                </Columns>
+            </RadzenGrid>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IList<Income> Incomes { get; set; }
+    [Parameter] public string ReportTitle { get; set; }
+    [Parameter] public ReportRequest ReportRequest { get; set; }
+    [Parameter] public List<string> Columns { get; set; }
+    RadzenGrid<Income> grid;
+
+    void ExportToPdf()
+    {
+        _pdfExportService.ExportToPdf(Incomes.ToList(), ReportTitle, ReportRequest, Columns);
+    }
+}

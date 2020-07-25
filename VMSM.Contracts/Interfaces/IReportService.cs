@@ -6,7 +6,7 @@ namespace VMSM.Contracts.Interfaces
 {
     public interface IReportService
     {
-        void IncomeReport(ReportRequest request);
+        List<Income> IncomeReport(ReportRequest request);
         List<Defect> DefectReport(ReportRequest request);
     }
 }

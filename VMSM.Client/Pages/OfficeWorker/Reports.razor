@@ -81,7 +81,7 @@
                     }
                     @if(isIncome)
                     {
-                        <p>income</p>
+                        <IncomeReport Incomes="@incomes" ReportTitle="@reportTitle" ReportRequest="@request" Columns="@columns"/>
                     }
                 </div>
             </div>
@@ -94,6 +94,7 @@
     bool isIncome = false;
     IList<VendingMachine> vendingMachines;
     IList<Defect> defects;
+    IList<Income> incomes;
     ReportRequest request = new ReportRequest
     {
         From = DateTime.Now,
@@ -126,6 +127,14 @@
         {
             case ReportType.Income:
                 {
+                    incomes = await _http.GetJsonAsync<IList<Income>>(Routes.Report.Root + queryString);
+                    reportTitle = "Incomes report for vending machine:" + selectedVendingMachine.NameWithCode;
+
+                    columns.Clear();
+                    columns.Add("CollectedIncome");
+                    //columns.Add("Profit");
+                    columns.Add("DateCreated");
+
                     isDefect = false;
                     isIncome = true;
                     break;
@@ -133,7 +142,7 @@
             case ReportType.Defect:
                 {
                     defects = await _http.GetJsonAsync<IList<Defect>>(Routes.Report.Root + queryString);
-                    reportTitle = "Report for defects for vending machine:" + selectedVendingMachine.NameWithCode;
+                    reportTitle = "Defects report for vending machine:" + selectedVendingMachine.NameWithCode;
 
                     columns.Clear();
                     columns.Add("Description");
