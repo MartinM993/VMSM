@@ -27,3 +27,6 @@ The main purpose of this application is to allow managing staff that works with 
   - Download zip or clone the project
   - Make sure to have Visual Studio 2019 (or VS Code) and SQL Server installed
   - Migrations are created and data seeder (one user, one address and needed roles) is added, just execute Update-Database in Package Manager Console for VMSM.Data project
+
+# Link from demo video:
+https://www.dropbox.com/scl/fi/if7rlxy6y5wqxsnlun155/VMSM-Google-Chrome-2020-06-24-23-04-26.mp4?rlkey=kcwq6kvc2b12owkj79twkd2p7&st=jf64h7au&dl=0
